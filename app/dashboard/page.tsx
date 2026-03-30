@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getMembers } from "@/lib/members";
 import { Member } from "@/lib/types";
-import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, Loader2 } from "lucide-react";
+import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, UserX, UserPlus, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -17,6 +17,10 @@ export default function DashboardPage() {
   const active = members.filter((m) => m.status === "active").length;
   const pending = members.filter((m) => m.status === "pending").length;
   const overdue = members.filter((m) => m.status === "overdue").length;
+  const expired = members.filter((m) => m.status === "expired").length;
+
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const newThisMonth = members.filter((m) => m.createdAt?.startsWith(thisMonth)).length;
 
   // Expiring within 7 days
   const expiringSoon = members.filter((m) => {
@@ -39,6 +43,8 @@ export default function DashboardPage() {
   // Secondary row — easy to remove if reverting to 4-card layout
   const secondaryStats = [
     { label: "Expiring Soon (7 days)", value: expiringSoon, icon: Clock, color: "text-purple-400", bg: "bg-purple-500/10" },
+    { label: "Expired", value: expired, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
+    { label: "New This Month", value: newThisMonth, icon: UserPlus, color: "text-sky-400", bg: "bg-sky-500/10" },
   ];
 
   return (
@@ -68,7 +74,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Secondary row */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {secondaryStats.map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className="glass rounded-2xl p-4 border border-zinc-800">
                 <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}>
