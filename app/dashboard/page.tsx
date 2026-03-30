@@ -37,12 +37,12 @@ export default function DashboardPage() {
     { label: "Total Members", value: total, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
     { label: "Active", value: active, icon: UserCheck, color: "text-green-400", bg: "bg-green-500/10" },
     { label: "Pending Approval", value: pending, icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
-    { label: "Payment Overdue", value: overdue, icon: TrendingUp, color: "text-orange-400", bg: "bg-orange-500/10" },
+    { label: "Expiring Soon (7 days)", value: expiringSoon, icon: Clock, color: "text-purple-400", bg: "bg-purple-500/10" },
   ];
 
   // Secondary row — easy to remove if reverting to 4-card layout
   const secondaryStats = [
-    { label: "Expiring Soon (7 days)", value: expiringSoon, icon: Clock, color: "text-purple-400", bg: "bg-purple-500/10" },
+    { label: "Payment Overdue", value: overdue, icon: TrendingUp, color: "text-orange-400", bg: "bg-orange-500/10" },
     { label: "Expired", value: expired, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
     { label: "New This Month", value: newThisMonth, icon: UserPlus, color: "text-sky-400", bg: "bg-sky-500/10" },
   ];
