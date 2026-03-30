@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMembers, getPayments } from "@/lib/members";
-import { Member, Payment } from "@/lib/types";
-import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, IndianRupee, Loader2 } from "lucide-react";
+import { getMembers } from "@/lib/members";
+import { Member } from "@/lib/types";
+import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [members, setMembers] = useState<Member[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getMembers(), getPayments()]).then(([m, p]) => {
-      setMembers(m);
-      setPayments(p);
-      setLoading(false);
-    });
+    getMembers().then((m) => { setMembers(m); setLoading(false); });
   }, []);
 
   const total = members.length;
@@ -34,12 +29,6 @@ export default function DashboardPage() {
     return diff >= 0 && diff <= 7;
   }).length;
 
-  // Revenue this month
-  const thisMonth = new Date().toISOString().slice(0, 7);
-  const monthRevenue = payments
-    .filter((p) => p.date.startsWith(thisMonth))
-    .reduce((sum, p) => sum + p.amount, 0);
-
   const primaryStats = [
     { label: "Total Members", value: total, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
     { label: "Active", value: active, icon: UserCheck, color: "text-green-400", bg: "bg-green-500/10" },
@@ -50,7 +39,6 @@ export default function DashboardPage() {
   // Secondary row — easy to remove if reverting to 4-card layout
   const secondaryStats = [
     { label: "Expiring Soon (7 days)", value: expiringSoon, icon: Clock, color: "text-purple-400", bg: "bg-purple-500/10" },
-    { label: "Revenue This Month", value: `₹${monthRevenue.toLocaleString()}`, icon: IndianRupee, color: "text-emerald-400", bg: "bg-emerald-500/10" },
   ];
 
   return (
