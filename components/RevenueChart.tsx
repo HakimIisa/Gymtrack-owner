@@ -21,7 +21,7 @@ function buildMonthlyData(payments: Payment[]) {
   const sorted = Object.keys(map).sort();
   return sorted.map((month) => {
     const [year, m] = month.split("-");
-    const label = new Date(Number(year), Number(m) - 1).toLocaleString("default", { month: "short", year: "2-digit" });
+    const label = new Date(Number(year), Number(m) - 1).toLocaleString("default", { month: "short", year: "numeric" });
     return { month: label, revenue: map[month] };
   });
 }
