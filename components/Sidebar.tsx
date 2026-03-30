@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, DollarSign, Settings, LogOut, Dumbbell } from "lucide-react";
+import { LayoutDashboard, Users, IndianRupee, Settings, LogOut, Dumbbell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard/members", icon: Users, label: "Members" },
-  { href: "/dashboard/finances", icon: DollarSign, label: "Finances" },
+  { href: "/dashboard/finances", icon: IndianRupee, label: "Finances" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 

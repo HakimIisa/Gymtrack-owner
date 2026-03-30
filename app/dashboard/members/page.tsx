@@ -6,7 +6,7 @@ import { Member, MemberStatus, PLAN_LABELS } from "@/lib/types";
 import StatusBadge from "@/components/StatusBadge";
 import AddMemberModal from "@/components/AddMemberModal";
 import RecordPaymentModal from "@/components/RecordPaymentModal";
-import { Search, UserPlus, DollarSign, Trash2, Loader2, QrCode } from "lucide-react";
+import { Search, UserPlus, IndianRupee, Trash2, Loader2, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusFilters: { value: MemberStatus | "all"; label: string }[] = [
@@ -164,7 +164,7 @@ export default function MembersPage() {
                         title="Record Payment"
                         className="p-1.5 rounded-lg text-zinc-500 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
                       >
-                        <DollarSign className="w-3.5 h-3.5" />
+                        <IndianRupee className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(member)}
