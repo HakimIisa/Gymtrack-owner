@@ -85,7 +85,7 @@ export const dailyMembershipCheck = onSchedule(
       // Compute new status
       let newStatus: string;
       if (diffDays < 0) newStatus = "active";
-      else if (diffDays <= 5) newStatus = "overdue";
+      else if (diffDays <= 3) newStatus = "overdue";
       else newStatus = "expired";
 
       // Update status if changed

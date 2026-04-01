@@ -10,7 +10,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const plans: MemberPlan[] = ["monthly", "quarterly", "half-yearly", "yearly"];
+const plans: MemberPlan[] = ["monthly", "quarterly", "half-yearly", "yearly", "custom"];
 
 export default function AddMemberModal({ onClose, onSuccess }: Props) {
   const [form, setForm] = useState({
@@ -19,6 +19,7 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
     phone: "",
     gender: "" as MemberGender | "",
     plan: "monthly" as MemberPlan,
+    customDays: "",
     startDate: new Date().toISOString().split("T")[0],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -30,6 +31,9 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.gender) { setError("Please select a gender."); return; }
+    if (form.plan === "custom" && (!form.customDays || Number(form.customDays) < 1)) {
+      setError("Please enter a valid number of days."); return;
+    }
     setError("");
     setSubmitting(true);
     try {
@@ -39,6 +43,7 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
         phone: form.phone.trim(),
         gender: form.gender as MemberGender,
         plan: form.plan,
+        ...(form.plan === "custom" ? { customDays: Number(form.customDays) } : {}),
         startDate: form.startDate,
       });
       onSuccess();
@@ -112,6 +117,16 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
               ))}
             </div>
           </div>
+
+          {form.plan === "custom" && (
+            <div>
+              <label className="block text-xs font-medium text-zinc-400 mb-1.5">Number of Days</label>
+              <input type="number" value={form.customDays} onChange={(e) => set("customDays", e.target.value)}
+                min="1" placeholder="e.g. 7" required
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors" />
+              <p className="text-xs text-zinc-600 mt-1">Price will be set when recording payment.</p>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-medium text-zinc-400 mb-1.5">Start Date</label>

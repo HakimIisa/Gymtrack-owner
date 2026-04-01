@@ -7,7 +7,6 @@ import {
   getDoc,
   query,
   orderBy,
-  Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Member, Payment, MemberPlan, MemberStatus, PLAN_DURATIONS, PricingConfig, DEFAULT_PRICING } from "./types";
@@ -21,19 +20,26 @@ function addDays(dateStr: string, days: number): string {
 }
 
 export function computeExpiryDate(
-  status: MemberStatus,
-  expiryDate: string | null,
   plan: MemberPlan,
-  paymentDate: string
+  periodStartDate: string,
+  customDays?: number
 ): string {
-  const duration = PLAN_DURATIONS[plan];
-
-  if (status === "overdue" && expiryDate) {
-    // Renewing during overdue window: continue from original expiry
-    return addDays(expiryDate, duration);
+  if (plan === "custom") {
+    return addDays(periodStartDate, customDays ?? 1);
   }
-  // New member or expired member: fresh start from payment date
-  return addDays(paymentDate, duration);
+  return addDays(periodStartDate, PLAN_DURATIONS[plan]);
+}
+
+// Returns the smart default start date for the next membership period
+export function defaultPeriodStartDate(
+  status: MemberStatus,
+  expiryDate: string | null
+): string {
+  const today = new Date().toISOString().split("T")[0];
+  // Overdue: next period starts from original expiry date
+  if (status === "overdue" && expiryDate) return expiryDate;
+  // Expired or new: fresh start from today
+  return today;
 }
 
 export function computeStatus(expiryDate: string | null): MemberStatus {
@@ -45,7 +51,7 @@ export function computeStatus(expiryDate: string | null): MemberStatus {
   const diffDays = Math.floor((today.getTime() - expiry.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) return "active";
-  if (diffDays <= 5) return "overdue";
+  if (diffDays <= 3) return "overdue";   // 3-day grace period
   return "expired";
 }
 
@@ -57,7 +63,6 @@ export async function getMembers(): Promise<Member[]> {
   return snapshot.docs.map((doc) => {
     const data = doc.data();
     const member = { id: doc.id, ...data } as Member;
-    // Recompute live status based on expiry date
     if (member.status !== "pending") {
       member.status = computeStatus(member.expiryDate);
     }
@@ -96,24 +101,26 @@ export async function recordPayment(
   member: Member,
   plan: MemberPlan,
   amount: number,
+  periodStartDate: string,
+  customDays?: number,
   note?: string
 ): Promise<void> {
   const today = new Date().toISOString().split("T")[0];
-  const newExpiry = computeExpiryDate(member.status, member.expiryDate, plan, today);
+  const newExpiry = computeExpiryDate(plan, periodStartDate, customDays);
 
-  // Save payment record
   await addDoc(collection(db, "payments"), {
     memberId: member.id,
     memberName: member.name,
     plan,
+    ...(customDays ? { customDays } : {}),
     amount,
     date: today,
     note: note ?? "",
   });
 
-  // Update member
   await updateDoc(doc(db, "members", member.id), {
     plan,
+    ...(customDays ? { customDays } : {}),
     expiryDate: newExpiry,
     status: "active",
   });

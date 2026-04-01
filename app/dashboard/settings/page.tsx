@@ -8,7 +8,7 @@ import { updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCrede
 import { auth } from "@/lib/firebase";
 import { Check, Loader2, KeyRound, DollarSign, ShieldCheck } from "lucide-react";
 
-const plans: MemberPlan[] = ["monthly", "quarterly", "half-yearly", "yearly"];
+const plans: Exclude<MemberPlan, "custom">[] = ["monthly", "quarterly", "half-yearly", "yearly"];
 
 export default function SettingsPage() {
   return (
@@ -33,7 +33,7 @@ function PricingSection() {
 
   useEffect(() => { getPricing().then(setPricing); }, []);
 
-  const setRate = (plan: MemberPlan, gender: "male" | "female", value: string) => {
+  const setRate = (plan: Exclude<MemberPlan, "custom">, gender: "male" | "female", value: string) => {
     if (!pricing) return;
     setPricing({ ...pricing, [plan]: { ...pricing[plan], [gender]: Number(value) } });
   };

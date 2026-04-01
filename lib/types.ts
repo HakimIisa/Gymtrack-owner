@@ -1,5 +1,5 @@
 export type MemberStatus = "pending" | "active" | "overdue" | "expired";
-export type MemberPlan = "monthly" | "quarterly" | "half-yearly" | "yearly";
+export type MemberPlan = "monthly" | "quarterly" | "half-yearly" | "yearly" | "custom";
 export type MemberGender = "male" | "female";
 
 export interface Member {
@@ -9,10 +9,11 @@ export interface Member {
   phone: string;
   gender: MemberGender;
   plan: MemberPlan;
-  startDate: string;       // ISO date string
+  customDays?: number;       // only set when plan === "custom"
+  startDate: string;         // ISO date string
   expiryDate: string | null;
   status: MemberStatus;
-  createdAt: string;       // ISO date string
+  createdAt: string;         // ISO date string
 }
 
 export interface Payment {
@@ -20,8 +21,9 @@ export interface Payment {
   memberId: string;
   memberName: string;
   plan: MemberPlan;
+  customDays?: number;
   amount: number;
-  date: string;            // ISO date string
+  date: string;              // ISO date string
   note?: string;
 }
 
@@ -32,7 +34,7 @@ export interface PricingConfig {
   yearly: { male: number; female: number };
 }
 
-export const PLAN_DURATIONS: Record<MemberPlan, number> = {
+export const PLAN_DURATIONS: Record<Exclude<MemberPlan, "custom">, number> = {
   monthly: 30,
   quarterly: 90,
   "half-yearly": 180,
@@ -44,6 +46,7 @@ export const PLAN_LABELS: Record<MemberPlan, string> = {
   quarterly: "Quarterly",
   "half-yearly": "Half-Yearly",
   yearly: "Yearly",
+  custom: "Custom",
 };
 
 export const DEFAULT_PRICING: PricingConfig = {
