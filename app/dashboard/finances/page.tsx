@@ -187,11 +187,15 @@ function PTFinancesTab() {
     .filter((p) => p.date.startsWith(thisMonth))
     .reduce((sum, p) => sum + p.amount, 0);
 
-  // Per-trainer breakdown
-  const trainerBreakdown = trainers.map((t) => ({
-    trainer: t,
-    total: ptPayments.filter((p) => p.trainerId === t.id).reduce((sum, p) => sum + p.amount, 0),
-  })).filter((row) => row.total > 0);
+  // Per-trainer breakdown with individual payments
+  const trainerBreakdown = trainers.map((t) => {
+    const payments = ptPayments.filter((p) => p.trainerId === t.id);
+    return {
+      trainer: t,
+      payments,
+      total: payments.reduce((sum, p) => sum + p.amount, 0),
+    };
+  }).filter((row) => row.total > 0);
 
   return (
     <>
@@ -222,25 +226,38 @@ function PTFinancesTab() {
             <thead>
               <tr className="border-b border-zinc-800">
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Trainer</th>
-                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden sm:table-cell">Specialization</th>
-                <th className="text-right text-xs font-medium text-zinc-500 px-4 py-3">Total Earned</th>
+                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Member</th>
+                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Date</th>
+                <th className="text-right text-xs font-medium text-zinc-500 px-4 py-3">Amount</th>
               </tr>
             </thead>
             <tbody>
-              {trainerBreakdown.map((row, i) => (
-                <tr key={row.trainer.id}
-                  className={`border-b border-zinc-800/60 hover:bg-zinc-800/20 transition-colors ${i === trainerBreakdown.length - 1 ? "border-b-0" : ""}`}>
-                  <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-zinc-100">{row.trainer.name}</p>
-                  </td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
-                    <span className="text-xs text-zinc-400">{row.trainer.specialization}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-semibold text-green-400">₹{row.total.toLocaleString()}</span>
-                  </td>
-                </tr>
-              ))}
+              {trainerBreakdown.flatMap((row) =>
+                row.payments.map((p, pi) => (
+                  <tr key={p.id}
+                    className={`border-b border-zinc-800/60 hover:bg-zinc-800/20 transition-colors ${
+                      pi === row.payments.length - 1 ? "border-b border-zinc-800" : ""
+                    }`}>
+                    <td className="px-4 py-3">
+                      {pi === 0 && (
+                        <>
+                          <p className="text-sm font-medium text-zinc-100">{row.trainer.name}</p>
+                          <p className="text-xs text-zinc-500">Total: ₹{row.total.toLocaleString()}</p>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm text-zinc-200">{p.memberName}</p>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <span className="text-xs text-zinc-500">{p.date}</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

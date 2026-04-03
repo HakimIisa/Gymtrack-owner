@@ -5,6 +5,7 @@ import { getTrainers, deleteTrainer, getPTRequests } from "@/lib/trainers";
 import { Trainer, PTRequest } from "@/lib/types";
 import AddTrainerModal from "@/components/AddTrainerModal";
 import ApprovePTModal from "@/components/ApprovePTModal";
+import AssignPTModal from "@/components/AssignPTModal";
 import { UserPlus, Pencil, Trash2, Loader2, QrCode, ChevronDown, ChevronUp, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ export default function TrainersPage() {
   const [ptRequests, setPTRequests] = useState<PTRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
   const [editTarget, setEditTarget] = useState<Trainer | null>(null);
   const [approveTarget, setApproveTarget] = useState<PTRequest | null>(null);
   const [expandedTrainer, setExpandedTrainer] = useState<string | null>(null);
@@ -58,6 +60,13 @@ export default function TrainersPage() {
           >
             <QrCode className="w-4 h-4" />
             PT Registration QR
+          </button>
+          <button
+            onClick={() => setShowAssign(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 text-sm transition-colors"
+          >
+            <UserCheck className="w-4 h-4" />
+            Assign PT
           </button>
           <button
             onClick={() => setShowAdd(true)}
@@ -209,6 +218,9 @@ export default function TrainersPage() {
       {/* Modals */}
       {showAdd && (
         <AddTrainerModal onClose={() => setShowAdd(false)} onSuccess={() => { setShowAdd(false); load(); }} />
+      )}
+      {showAssign && (
+        <AssignPTModal onClose={() => setShowAssign(false)} onSuccess={() => { setShowAssign(false); load(); }} />
       )}
       {editTarget && (
         <AddTrainerModal trainer={editTarget} onClose={() => setEditTarget(null)} onSuccess={() => { setEditTarget(null); load(); }} />

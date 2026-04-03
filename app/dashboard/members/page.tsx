@@ -156,7 +156,11 @@ export default function MembersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={member.status} />
-                    {pendingPT.some((r) => r.memberPhone === member.phone) && (
+                    {pendingPT.some(
+                      (r) =>
+                        r.memberPhone === member.phone &&
+                        r.memberName.toLowerCase() === member.name.toLowerCase()
+                    ) && (
                       <span className="mt-1 inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-md px-1.5 py-0.5">
                         PT Request
                       </span>
@@ -170,7 +174,11 @@ export default function MembersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       {(() => {
-                        const ptReq = pendingPT.find((r) => r.memberPhone === member.phone);
+                        const ptReq = pendingPT.find(
+                          (r) =>
+                            r.memberPhone === member.phone &&
+                            r.memberName.toLowerCase() === member.name.toLowerCase()
+                        );
                         return ptReq ? (
                           <button
                             onClick={() => setPTApproveTarget(ptReq)}

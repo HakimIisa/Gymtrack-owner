@@ -96,6 +96,38 @@ export async function approvePTRequest(requestId: string, amount: number): Promi
   });
 }
 
+export async function directAssignPT(
+  member: { id: string; name: string; phone: string },
+  trainer: { id: string; name: string },
+  amount: number
+): Promise<void> {
+  const today = new Date().toISOString().split("T")[0];
+  const expiryDate = addDays(today, 30);
+
+  await addDoc(collection(db, "ptRequests"), {
+    memberId: member.id,
+    memberName: member.name,
+    memberPhone: member.phone,
+    trainerId: trainer.id,
+    trainerName: trainer.name,
+    status: "active",
+    amount,
+    startDate: today,
+    expiryDate,
+    createdAt: today,
+  });
+
+  await addDoc(collection(db, "ptPayments"), {
+    memberId: member.id,
+    memberName: member.name,
+    trainerId: trainer.id,
+    trainerName: trainer.name,
+    amount,
+    date: today,
+    note: "",
+  });
+}
+
 // ── PT Payments ───────────────────────────────────────────────────────────────
 
 export async function getPTPayments(): Promise<PTPayment[]> {
