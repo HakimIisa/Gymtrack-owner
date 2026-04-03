@@ -53,8 +53,7 @@ export async function getPTRequests(): Promise<PTRequest[]> {
 export async function getPendingPTRequests(): Promise<PTRequest[]> {
   const q = query(
     collection(db, "ptRequests"),
-    where("status", "==", "pending"),
-    orderBy("createdAt", "desc")
+    where("status", "==", "pending")
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PTRequest));
