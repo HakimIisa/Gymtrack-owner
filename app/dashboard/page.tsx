@@ -2,15 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { getMembers } from "@/lib/members";
+import { getPendingPTRequests } from "@/lib/trainers";
 import { Member } from "@/lib/types";
-import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, UserX, UserPlus, Loader2 } from "lucide-react";
+import { Users, UserCheck, AlertTriangle, TrendingUp, Clock, UserX, UserPlus, Loader2, Dumbbell } from "lucide-react";
 
 export default function DashboardPage() {
   const [members, setMembers] = useState<Member[]>([]);
+  const [pendingPTCount, setPendingPTCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMembers().then((m) => { setMembers(m); setLoading(false); });
+    Promise.all([getMembers(), getPendingPTRequests()]).then(([m, pt]) => {
+      setMembers(m);
+      setPendingPTCount(pt.length);
+      setLoading(false);
+    });
   }, []);
 
   const total = members.length;
@@ -45,6 +51,7 @@ export default function DashboardPage() {
     { label: "Payment Overdue", value: overdue, icon: TrendingUp, color: "text-orange-400", bg: "bg-orange-500/10" },
     { label: "Expired", value: expired, icon: UserX, color: "text-red-400", bg: "bg-red-500/10" },
     { label: "New This Month", value: newThisMonth, icon: UserPlus, color: "text-sky-400", bg: "bg-sky-500/10" },
+    { label: "PT Requests", value: pendingPTCount, icon: Dumbbell, color: "text-violet-400", bg: "bg-violet-500/10" },
   ];
 
   return (
@@ -74,7 +81,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Secondary row */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {secondaryStats.map(({ label, value, icon: Icon, color, bg }) => (
               <div key={label} className="glass rounded-2xl p-4 border border-zinc-800">
                 <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-3`}>

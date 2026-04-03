@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getMembers, updateMember } from "@/lib/members";
-import { Member, MemberStatus, PLAN_LABELS } from "@/lib/types";
+import { getMembers } from "@/lib/members";
+import { getPendingPTRequests } from "@/lib/trainers";
+import { Member, MemberStatus, PLAN_LABELS, PTRequest } from "@/lib/types";
 import StatusBadge from "@/components/StatusBadge";
 import AddMemberModal from "@/components/AddMemberModal";
 import RecordPaymentModal from "@/components/RecordPaymentModal";
-import { Search, UserPlus, IndianRupee, Trash2, Loader2, QrCode } from "lucide-react";
+import ApprovePTModal from "@/components/ApprovePTModal";
+import { Search, UserPlus, IndianRupee, Trash2, Loader2, QrCode, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusFilters: { value: MemberStatus | "all"; label: string }[] = [
@@ -19,17 +21,20 @@ const statusFilters: { value: MemberStatus | "all"; label: string }[] = [
 
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
+  const [pendingPT, setPendingPT] = useState<PTRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatus | "all">("all");
   const [showAdd, setShowAdd] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<Member | null>(null);
+  const [ptApproveTarget, setPTApproveTarget] = useState<PTRequest | null>(null);
   const [showQR, setShowQR] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const data = await getMembers();
+    const [data, pt] = await Promise.all([getMembers(), getPendingPTRequests()]);
     setMembers(data);
+    setPendingPT(pt);
     setLoading(false);
   }, []);
 
@@ -151,6 +156,11 @@ export default function MembersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={member.status} />
+                    {pendingPT.some((r) => r.memberPhone === member.phone) && (
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-md px-1.5 py-0.5">
+                        PT Request
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     <span className="text-xs text-zinc-500">
@@ -159,6 +169,18 @@ export default function MembersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      {(() => {
+                        const ptReq = pendingPT.find((r) => r.memberPhone === member.phone);
+                        return ptReq ? (
+                          <button
+                            onClick={() => setPTApproveTarget(ptReq)}
+                            title="Approve PT Request"
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                          >
+                            <UserCheck className="w-3.5 h-3.5" />
+                          </button>
+                        ) : null;
+                      })()}
                       <button
                         onClick={() => setPaymentTarget(member)}
                         title="Record Payment"
@@ -194,6 +216,13 @@ export default function MembersPage() {
           member={paymentTarget}
           onClose={() => setPaymentTarget(null)}
           onSuccess={() => { setPaymentTarget(null); load(); }}
+        />
+      )}
+      {ptApproveTarget && (
+        <ApprovePTModal
+          request={ptApproveTarget}
+          onClose={() => setPTApproveTarget(null)}
+          onSuccess={() => { setPTApproveTarget(null); load(); }}
         />
       )}
       {showQR && (

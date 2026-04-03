@@ -51,7 +51,7 @@ export function computeStatus(expiryDate: string | null): MemberStatus {
   const diffDays = Math.floor((today.getTime() - expiry.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) return "active";
-  if (diffDays <= 3) return "overdue";   // 3-day grace period
+  if (diffDays <= 5) return "overdue";   // 5-day grace period
   return "expired";
 }
 

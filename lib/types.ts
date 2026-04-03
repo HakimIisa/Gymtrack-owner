@@ -55,3 +55,41 @@ export const DEFAULT_PRICING: PricingConfig = {
   "half-yearly": { male: 5000, female: 4000 },
   yearly: { male: 9000, female: 7500 },
 };
+
+// ── Trainer & PT types ────────────────────────────────────────────────────────
+
+export interface Trainer {
+  id: string;
+  name: string;
+  phone: string;
+  specialization: string;
+  monthlyRate: number;
+  createdAt: string;
+}
+
+export type PTRequestStatus = "pending" | "active" | "unassigned";
+
+export interface PTRequest {
+  id: string;
+  memberId: string;
+  memberName: string;
+  memberPhone: string;
+  trainerId: string;
+  trainerName: string;
+  status: PTRequestStatus;
+  amount?: number;
+  createdAt: string;
+  startDate?: string;
+  expiryDate?: string;
+}
+
+export interface PTPayment {
+  id: string;
+  memberId: string;
+  memberName: string;
+  trainerId: string;
+  trainerName: string;
+  amount: number;
+  date: string;
+  note?: string;
+}

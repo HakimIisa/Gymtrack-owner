@@ -1,83 +1,72 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
-import { Resend } from "resend";
 
 admin.initializeApp();
 const db = admin.firestore();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function daysDiff(dateStr: string): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+function daysDiff(dateStr: string, referenceDate: Date): number {
+  const ref = new Date(referenceDate);
+  ref.setHours(0, 0, 0, 0);
   const target = new Date(dateStr);
   target.setHours(0, 0, 0, 0);
-  return Math.floor((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.floor((target.getTime() - ref.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendSMS(phone: string, message: string): Promise<void> {
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: "Hybrid Fitness <onboarding@resend.dev>",
-      to,
-      subject,
-      html,
+    const authKey = process.env.MSG91_AUTH_KEY;
+    const senderId = process.env.MSG91_SENDER_ID ?? "HYBFIT";
+    if (!authKey) {
+      console.warn("MSG91_AUTH_KEY not set — SMS skipped for", phone);
+      return;
+    }
+    const payload = {
+      sender: senderId,
+      route: "4",
+      country: "91",
+      sms: [{ message, to: [phone] }],
+    };
+    const res = await fetch("https://api.msg91.com/api/v5/flow/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authkey: authKey,
+      },
+      body: JSON.stringify(payload),
     });
+    if (!res.ok) {
+      console.error("MSG91 error:", await res.text());
+    }
   } catch (err) {
-    console.error("Email send failed:", err);
+    console.error("SMS send failed:", err);
   }
-}
-
-// ── Email Templates ───────────────────────────────────────────────────────────
-
-function reminderEmailHtml(name: string, daysLeft: number, plan: string): string {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #09090b; color: #fafafa; padding: 32px; border-radius: 16px;">
-      <h2 style="color: #3b82f6; margin-bottom: 8px;">Hybrid Fitness</h2>
-      <h3 style="margin-bottom: 16px;">Membership Expiring Soon</h3>
-      <p>Hi <strong>${name}</strong>,</p>
-      <p>Your <strong>${plan}</strong> membership expires in <strong>${daysLeft} day${daysLeft !== 1 ? "s" : ""}</strong>.</p>
-      <p>Please visit the gym to renew your membership and continue your fitness journey.</p>
-      <div style="margin: 24px 0; padding: 16px; background: rgba(59,130,246,0.1); border-radius: 8px; border-left: 3px solid #3b82f6;">
-        <p style="margin: 0; font-size: 14px; color: #93c5fd;">Renew before your membership expires to maintain continuity.</p>
-      </div>
-      <p style="color: #71717a; font-size: 13px;">— Hybrid Fitness Team</p>
-    </div>
-  `;
-}
-
-function overdueEmailHtml(name: string, plan: string): string {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #09090b; color: #fafafa; padding: 32px; border-radius: 16px;">
-      <h2 style="color: #f97316; margin-bottom: 8px;">Hybrid Fitness</h2>
-      <h3 style="margin-bottom: 16px;">Payment Overdue</h3>
-      <p>Hi <strong>${name}</strong>,</p>
-      <p>Your <strong>${plan}</strong> membership has expired and your payment is now overdue.</p>
-      <p>You have a <strong>5-day grace period</strong> to renew. Please visit the gym as soon as possible to keep your membership active.</p>
-      <div style="margin: 24px 0; padding: 16px; background: rgba(249,115,22,0.1); border-radius: 8px; border-left: 3px solid #f97316;">
-        <p style="margin: 0; font-size: 14px; color: #fdba74;">After the grace period, your membership will be marked as expired.</p>
-      </div>
-      <p style="color: #71717a; font-size: 13px;">— Hybrid Fitness Team</p>
-    </div>
-  `;
 }
 
 // ── Daily Status Update & Notifications ──────────────────────────────────────
 
 export const dailyMembershipCheck = onSchedule(
-  { schedule: "every 24 hours", secrets: ["RESEND_API_KEY"] },
+  { schedule: "every 24 hours", secrets: ["MSG91_AUTH_KEY", "MSG91_SENDER_ID"] },
   async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Pre-fetch Google review link once
+    const settingsSnap = await db.doc("config/settings").get();
+    const reviewLink: string = settingsSnap.exists
+      ? (settingsSnap.data()?.googleReviewLink ?? "")
+      : "";
+
+    // ── Membership status + SMS ──────────────────────────────────────────────
     const snapshot = await db.collection("members").get();
-    const batch = db.batch();
-    const emailPromises: Promise<void>[] = [];
+    const memberBatch = db.batch();
+    const smsPromises: Promise<void>[] = [];
 
     for (const docSnap of snapshot.docs) {
       const member = docSnap.data();
       if (!member.expiryDate || member.status === "pending") continue;
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
       const expiry = new Date(member.expiryDate);
       expiry.setHours(0, 0, 0, 0);
       const diffDays = Math.floor((today.getTime() - expiry.getTime()) / (1000 * 60 * 60 * 24));
@@ -85,52 +74,84 @@ export const dailyMembershipCheck = onSchedule(
       // Compute new status
       let newStatus: string;
       if (diffDays < 0) newStatus = "active";
-      else if (diffDays <= 3) newStatus = "overdue";
+      else if (diffDays <= 5) newStatus = "overdue";   // 5-day grace period
       else newStatus = "expired";
 
       // Update status if changed
       if (newStatus !== member.status) {
-        batch.update(docSnap.ref, { status: newStatus });
+        memberBatch.update(docSnap.ref, { status: newStatus });
 
-        // Send overdue notification
-        if (newStatus === "overdue" && member.email) {
-          emailPromises.push(
-            sendEmail(
-              member.email,
-              "⚠️ Payment Overdue — Hybrid Fitness",
-              overdueEmailHtml(member.name, member.plan)
+        if (newStatus === "overdue" && member.phone) {
+          smsPromises.push(
+            sendSMS(
+              member.phone,
+              `Hi ${member.name}, your Hybrid Fitness membership has expired. You have a 5-day grace period to renew. Please visit us soon.`
             )
           );
         }
       }
 
-      // Send 3-day reminder if active and expiring in exactly 3 days
-      const daysUntilExpiry = daysDiff(member.expiryDate);
-      if (member.status === "active" && daysUntilExpiry === 3 && member.email) {
-        emailPromises.push(
-          sendEmail(
-            member.email,
-            "⏰ Membership Expiring in 3 Days — Hybrid Fitness",
-            reminderEmailHtml(member.name, 3, member.plan)
+      // 3-day reminder
+      const daysUntilExpiry = daysDiff(member.expiryDate, today);
+      if (member.status === "active" && daysUntilExpiry === 3 && member.phone) {
+        smsPromises.push(
+          sendSMS(
+            member.phone,
+            `Hi ${member.name}, your Hybrid Fitness membership expires in 3 days. Please visit us to renew.`
           )
         );
       }
 
-      // Send 1-day reminder
-      if (member.status === "active" && daysUntilExpiry === 1 && member.email) {
-        emailPromises.push(
-          sendEmail(
-            member.email,
-            "⏰ Membership Expiring Tomorrow — Hybrid Fitness",
-            reminderEmailHtml(member.name, 1, member.plan)
+      // 1-day reminder
+      if (member.status === "active" && daysUntilExpiry === 1 && member.phone) {
+        smsPromises.push(
+          sendSMS(
+            member.phone,
+            `Hi ${member.name}, your Hybrid Fitness membership expires tomorrow. Please renew today.`
           )
         );
+      }
+
+      // 30-day review SMS
+      if (member.createdAt && member.phone) {
+        const joinDate = new Date(member.createdAt);
+        joinDate.setHours(0, 0, 0, 0);
+        const joinedDaysAgo = Math.floor((today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (joinedDaysAgo === 30) {
+          const reviewPart = reviewLink ? ` Rate us on Google: ${reviewLink}` : "";
+          smsPromises.push(
+            sendSMS(
+              member.phone,
+              `Hi ${member.name}, you've completed 1 month at Hybrid Fitness! We'd love your feedback.${reviewPart}`
+            )
+          );
+        }
       }
     }
 
-    await batch.commit();
-    await Promise.all(emailPromises);
+    await memberBatch.commit();
 
-    console.log(`Daily check complete. Processed ${snapshot.docs.length} members.`);
+    // ── PT auto-unassignment ─────────────────────────────────────────────────
+    const ptSnapshot = await db.collection("ptRequests")
+      .where("status", "==", "active")
+      .get();
+    const ptBatch = db.batch();
+
+    for (const ptDoc of ptSnapshot.docs) {
+      const req = ptDoc.data();
+      if (!req.expiryDate) continue;
+      const ptExpiry = new Date(req.expiryDate);
+      ptExpiry.setHours(0, 0, 0, 0);
+      if (today >= ptExpiry) {
+        ptBatch.update(ptDoc.ref, { status: "unassigned" });
+      }
+    }
+    await ptBatch.commit();
+
+    await Promise.all(smsPromises);
+
+    console.log(
+      `Daily check complete. Members: ${snapshot.docs.length}, PT requests: ${ptSnapshot.docs.length}.`
+    );
   }
 );
