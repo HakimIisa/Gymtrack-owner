@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getTrainers, deleteTrainer, getPTRequests } from "@/lib/trainers";
+import { getTrainers, deleteTrainer, getPTRequests, unassignPT } from "@/lib/trainers";
 import { Trainer, PTRequest } from "@/lib/types";
 import AddTrainerModal from "@/components/AddTrainerModal";
 import ApprovePTModal from "@/components/ApprovePTModal";
 import AssignPTModal from "@/components/AssignPTModal";
-import { UserPlus, Pencil, Trash2, Loader2, QrCode, ChevronDown, ChevronUp, UserCheck } from "lucide-react";
+import { UserPlus, Pencil, Trash2, Loader2, QrCode, ChevronDown, ChevronUp, UserCheck, UserMinus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function TrainersPage() {
@@ -198,8 +198,19 @@ export default function TrainersPage() {
                                   <p className="text-zinc-200 font-medium">{req.memberName}</p>
                                   <p className="text-zinc-500">{req.memberPhone}</p>
                                 </div>
-                                <div className="text-right">
+                                <div className="flex items-center gap-3">
                                   <p className="text-zinc-500">Expires: {req.expiryDate ?? "—"}</p>
+                                  <button
+                                    onClick={async () => {
+                                      if (!confirm(`Unassign ${req.memberName} from ${trainer.name}?`)) return;
+                                      await unassignPT(req.id);
+                                      load();
+                                    }}
+                                    title="Unassign member"
+                                    className="flex items-center gap-1 text-zinc-600 hover:text-red-400 transition-colors"
+                                  >
+                                    <UserMinus className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </div>
                             ))}

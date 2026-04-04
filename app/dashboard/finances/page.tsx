@@ -218,48 +218,49 @@ function PTFinancesTab() {
 
       {/* Per-trainer breakdown */}
       {!loading && trainerBreakdown.length > 0 && (
-        <div className="glass border border-zinc-800 rounded-2xl overflow-hidden mb-6">
-          <div className="px-4 py-3 border-b border-zinc-800">
-            <p className="text-sm font-medium text-zinc-300">Revenue by Trainer</p>
-          </div>
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-zinc-800">
-                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Trainer</th>
-                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Member</th>
-                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Date</th>
-                <th className="text-right text-xs font-medium text-zinc-500 px-4 py-3">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trainerBreakdown.flatMap((row) =>
-                row.payments.map((p, pi) => (
-                  <tr key={p.id}
-                    className={`border-b border-zinc-800/60 hover:bg-zinc-800/20 transition-colors ${
-                      pi === row.payments.length - 1 ? "border-b border-zinc-800" : ""
-                    }`}>
-                    <td className="px-4 py-3">
-                      {pi === 0 && (
-                        <>
-                          <p className="text-sm font-medium text-zinc-100">{row.trainer.name}</p>
-                          <p className="text-xs text-zinc-500">Total: ₹{row.total.toLocaleString()}</p>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="text-sm text-zinc-200">{p.memberName}</p>
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-xs text-zinc-500">{p.date}</span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
-                    </td>
+        <div className="space-y-4 mb-6">
+          <p className="text-sm font-medium text-zinc-300">Revenue by Trainer</p>
+          {trainerBreakdown.map((row) => (
+            <div key={row.trainer.id} className="glass border border-zinc-800 rounded-2xl overflow-hidden">
+              {/* Trainer header with total */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
+                <div>
+                  <p className="text-sm font-semibold text-zinc-100">{row.trainer.name}</p>
+                  <p className="text-xs text-zinc-500">{row.trainer.specialization}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-zinc-500 mb-0.5">Total Revenue</p>
+                  <p className="text-lg font-bold text-green-400">₹{row.total.toLocaleString()}</p>
+                </div>
+              </div>
+              {/* Individual payment rows */}
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-zinc-800">
+                    <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2">Member</th>
+                    <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2 hidden md:table-cell">Date</th>
+                    <th className="text-right text-xs font-medium text-zinc-500 px-4 py-2">Amount</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {row.payments.map((p, pi) => (
+                    <tr key={p.id}
+                      className={`hover:bg-zinc-800/20 transition-colors ${pi < row.payments.length - 1 ? "border-b border-zinc-800/60" : ""}`}>
+                      <td className="px-4 py-2.5">
+                        <p className="text-sm text-zinc-200">{p.memberName}</p>
+                      </td>
+                      <td className="px-4 py-2.5 hidden md:table-cell">
+                        <span className="text-xs text-zinc-500">{p.date}</span>
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       )}
 

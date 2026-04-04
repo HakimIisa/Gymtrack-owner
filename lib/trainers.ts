@@ -96,36 +96,25 @@ export async function approvePTRequest(requestId: string, amount: number): Promi
   });
 }
 
+// Owner-side PT request — creates pending, goes through same approval flow
 export async function directAssignPT(
   member: { id: string; name: string; phone: string },
-  trainer: { id: string; name: string },
-  amount: number
+  trainer: { id: string; name: string }
 ): Promise<void> {
   const today = new Date().toISOString().split("T")[0];
-  const expiryDate = addDays(today, 30);
-
   await addDoc(collection(db, "ptRequests"), {
     memberId: member.id,
     memberName: member.name,
     memberPhone: member.phone,
     trainerId: trainer.id,
     trainerName: trainer.name,
-    status: "active",
-    amount,
-    startDate: today,
-    expiryDate,
+    status: "pending",
     createdAt: today,
   });
+}
 
-  await addDoc(collection(db, "ptPayments"), {
-    memberId: member.id,
-    memberName: member.name,
-    trainerId: trainer.id,
-    trainerName: trainer.name,
-    amount,
-    date: today,
-    note: "",
-  });
+export async function unassignPT(requestId: string): Promise<void> {
+  await updateDoc(doc(db, "ptRequests", requestId), { status: "unassigned" });
 }
 
 // ── PT Payments ───────────────────────────────────────────────────────────────

@@ -17,7 +17,6 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
-  const [amount, setAmount] = useState("");
   const [search, setSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -39,15 +38,12 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
     e.preventDefault();
     if (!selectedMember) { setError("Select a member."); return; }
     if (!selectedTrainer) { setError("Select a trainer."); return; }
-    const amountNum = parseFloat(amount);
-    if (!amountNum || amountNum <= 0) { setError("Enter a valid amount."); return; }
     setError("");
     setSubmitting(true);
     try {
       await directAssignPT(
         { id: selectedMember.id, name: selectedMember.name, phone: selectedMember.phone },
-        { id: selectedTrainer.id, name: selectedTrainer.name },
-        amountNum
+        { id: selectedTrainer.id, name: selectedTrainer.name }
       );
       onSuccess();
     } catch {
@@ -109,7 +105,7 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => { setSelectedTrainer(t); setAmount(String(t.monthlyRate)); }}
+                  onClick={() => setSelectedTrainer(t)}
                   className={cn(
                     "w-full text-left px-3 py-2 rounded-lg border text-sm transition-all",
                     selectedTrainer?.id === t.id
@@ -124,22 +120,9 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
             </div>
           </div>
 
-          {/* Amount */}
-          <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">
-              Amount (₹)
-              <span className="ml-1 text-zinc-600 font-normal">— edit to apply discount</span>
-            </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              min="1"
-              required
-              placeholder="e.g. 3000"
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors"
-            />
-          </div>
+          <p className="text-xs text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+            This creates a pending request. Approve it from the Members tab to set the amount and activate.
+          </p>
 
           {error && (
             <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
@@ -147,7 +130,7 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
 
           <button type="submit" disabled={submitting}
             className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg py-2.5 transition-colors flex items-center justify-center gap-2">
-            {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Assigning...</> : "Assign & Record Payment"}
+            {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : "Submit PT Request"}
           </button>
         </form>
       </div>
