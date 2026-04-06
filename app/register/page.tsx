@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { addMember } from "@/lib/members";
 import { MemberPlan, MemberGender, PLAN_LABELS } from "@/lib/types";
-import { Dumbbell, CheckCircle, Loader2 } from "lucide-react";
+import { Dumbbell, CheckCircle, Loader2, FileDown } from "lucide-react";
 
 const plans: MemberPlan[] = ["monthly", "quarterly", "half-yearly", "yearly", "custom"];
 const genders: { value: MemberGender; label: string }[] = [
@@ -24,6 +24,7 @@ export default function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   const set = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -61,15 +62,132 @@ export default function RegisterPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-400" />
+        <div className="w-full max-w-sm">
+          {/* Success header */}
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            </div>
+            <h1 className="text-xl font-bold text-zinc-50 mb-2">Registration Submitted!</h1>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              Your membership request has been received. The gym owner will review and activate your membership shortly.
+            </p>
           </div>
-          <h1 className="text-xl font-bold text-zinc-50 mb-2">Registration Submitted!</h1>
-          <p className="text-sm text-zinc-400 leading-relaxed">
-            Your membership request has been received. The gym owner will review and activate your membership shortly.
-          </p>
-          <p className="text-xs text-zinc-600 mt-6">Hybrid Fitness</p>
+
+          {/* Download button */}
+          <a
+            href="/rules.pdf"
+            download="Hybrid Fitness Rules.pdf"
+            className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-blue-600/50 text-zinc-300 hover:text-blue-400 text-sm font-medium rounded-xl px-4 py-3 transition-colors mb-4"
+          >
+            <FileDown className="w-4 h-4" />
+            Download Gym Rules (PDF)
+          </a>
+
+          {/* Scrollable rules card */}
+          <div className="glass rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="px-5 py-4 border-b border-zinc-800">
+              <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">Hybrid Fitness: Official Gym Policies</h2>
+            </div>
+            <div className="overflow-y-auto max-h-[55vh] px-5 py-4 space-y-5">
+              {/* Equipment & Facility */}
+              <div>
+                <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider mb-3">Equipment &amp; Facility Policies</h3>
+                <ol className="space-y-2.5">
+                  {[
+                    ["Cardio Equipment Usage", "Cardio equipment (Treadmills, Cross-trainers, and Cycles) usage is restricted to a maximum of 15 minutes per session."],
+                    ["Daily Time Limit", "The maximum allowed time per member, per day, is 100 minutes."],
+                    ["Hogging Prohibited", "Do not hog any equipment, including weight stations or cardio machines."],
+                    ["Weight Re-racking", "Members must re-rack all weights and return equipment to its proper storage place after use."],
+                    ["Cleanliness", "Maintain proper hygiene. Do not leave your sweat behind on benches, mats, or equipment."],
+                    ["Reporting Damage", "Immediately report any damaged or malfunctioning equipment to management for prompt repair."],
+                  ].map(([title, body], i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span className="text-blue-500 text-xs font-bold mt-0.5 shrink-0">{i + 1}.</span>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        <span className="text-blue-400 font-semibold">{title}: </span>{body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="border-t border-zinc-800" />
+
+              {/* Conduct & Etiquette */}
+              <div>
+                <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider mb-3">Conduct &amp; Etiquette</h3>
+                <ol className="space-y-2.5">
+                  {[
+                    ["Mutual Respect", "All trainers must be treated with the utmost respect."],
+                    ["Professional Conduct", "Misbehaviour towards trainers will not be tolerated. Management holds full authority to terminate memberships if any complaint of misbehaviour is registered."],
+                    ["Positive Atmosphere", "Never laugh at beginners. Leave your ego at the door."],
+                    ["Member Space", "Always respect other members' personal space."],
+                    ["Interruption Policy", "Do not interrupt another member mid-set."],
+                    ["Phone Usage", "Mobile phones are not allowed on the workout floor during sessions, with exceptions for urgent calls only."],
+                  ].map(([title, body], i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span className="text-blue-500 text-xs font-bold mt-0.5 shrink-0">{i + 1}.</span>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        <span className="text-blue-400 font-semibold">{title}: </span>{body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="border-t border-zinc-800" />
+
+              {/* Access & Appearance */}
+              <div>
+                <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider mb-3">Access &amp; Appearance</h3>
+                <ol className="space-y-2.5">
+                  {[
+                    ["Gym Attire", "Proper athletic attire (gym ware) and clean, dedicated indoor athletic shoes are mandatory on the workout floor. No formal wear is permitted."],
+                    ["Outside Footwear", "For the cleanliness and maintenance of the facility, outside shoes are strictly prohibited on the workout floor."],
+                    ["Children", "Children are not allowed with clients on the workout floor."],
+                    ["Guest Access", "Non-members accompanying members are not allowed on the workout floor."],
+                  ].map(([title, body], i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span className="text-blue-500 text-xs font-bold mt-0.5 shrink-0">{i + 1}.</span>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        <span className="text-blue-400 font-semibold">{title}: </span>{body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="border-t border-zinc-800" />
+
+              {/* Membership & Missed Sessions */}
+              <div>
+                <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider mb-3">Membership &amp; Missed Sessions</h3>
+                <ol className="space-y-2.5">
+                  {[
+                    ["Non-Refundable", "Missed days, weeks, or months due to personal reasons will not be compensated, extended, or refunded."],
+                    ["Membership Restrictions", "Memberships cannot be frozen, paused, or transferred for any reason."],
+                    ["Defined Periods", "The membership period begins and ends as stated at the time of registration. All members are encouraged to plan their training schedules accordingly."],
+                  ].map(([title, body], i) => (
+                    <li key={i} className="flex gap-2.5">
+                      <span className="text-blue-500 text-xs font-bold mt-0.5 shrink-0">{i + 1}.</span>
+                      <p className="text-xs text-zinc-400 leading-relaxed">
+                        <span className="text-blue-400 font-semibold">{title}: </span>{body}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="border-t border-zinc-800" />
+
+              <p className="text-xs text-zinc-500 italic leading-relaxed">
+                Our trainers are responsible for ensuring that the above policies are strictly enforced. Thank you for making Hybrid Fitness a place of discipline and commitment.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-zinc-600 mt-4">Hybrid Fitness</p>
         </div>
       </div>
     );
@@ -82,6 +200,16 @@ export default function RegisterPage() {
       </div>
 
       <div className="relative w-full max-w-sm">
+        {/* Rules download banner */}
+        <a
+          href="/rules.pdf"
+          download="Hybrid Fitness Rules.pdf"
+          className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-blue-600/50 text-zinc-300 hover:text-blue-400 text-sm font-medium rounded-xl px-4 py-3 transition-colors mb-4"
+        >
+          <FileDown className="w-4 h-4" />
+          Download Gym Rules (PDF)
+        </a>
+
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-blue-600/10 border border-blue-600/20 flex items-center justify-center mb-3">
@@ -198,6 +326,27 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Rules acknowledgement */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 shrink-0 rounded border border-zinc-700 bg-zinc-900 accent-blue-600 cursor-pointer"
+              />
+              <span className="text-xs text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors">
+                I have read and agree to the{" "}
+                <a
+                  href="/rules.pdf"
+                  download="Hybrid Fitness Rules.pdf"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                >
+                  Hybrid Fitness gym rules
+                </a>
+              </span>
+            </label>
+
             {error && (
               <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
                 {error}
@@ -206,7 +355,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !agreed}
               className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg py-2.5 transition-colors flex items-center justify-center gap-2"
             >
               {submitting ? (
