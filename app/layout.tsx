@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
@@ -11,6 +11,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "GymTrack — Owner Edition",
   description: "Gym membership management for owners",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
