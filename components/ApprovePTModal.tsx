@@ -7,12 +7,13 @@ import { X, Loader2 } from "lucide-react";
 
 interface Props {
   request: PTRequest;
+  defaultAmount?: number;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function ApprovePTModal({ request, onClose, onSuccess }: Props) {
-  const [amount, setAmount] = useState("");
+export default function ApprovePTModal({ request, defaultAmount, onClose, onSuccess }: Props) {
+  const [amount, setAmount] = useState(defaultAmount ? String(defaultAmount) : "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 

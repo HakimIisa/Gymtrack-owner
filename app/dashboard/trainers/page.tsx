@@ -237,7 +237,12 @@ export default function TrainersPage() {
         <AddTrainerModal trainer={editTarget} onClose={() => setEditTarget(null)} onSuccess={() => { setEditTarget(null); load(); }} />
       )}
       {approveTarget && (
-        <ApprovePTModal request={approveTarget} onClose={() => setApproveTarget(null)} onSuccess={() => { setApproveTarget(null); load(); }} />
+        <ApprovePTModal
+          request={approveTarget}
+          defaultAmount={trainers.find((t) => t.id === approveTarget.trainerId)?.monthlyRate}
+          onClose={() => setApproveTarget(null)}
+          onSuccess={() => { setApproveTarget(null); load(); }}
+        />
       )}
       {showQR && (
         <PTQRModal url={ptRegisterUrl} onClose={() => setShowQR(false)} />
