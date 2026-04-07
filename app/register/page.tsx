@@ -536,15 +536,69 @@ function PTTab() {
 
   if (submitted) {
     return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-green-400" />
+      <div className="w-full">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-400" />
+          </div>
+          <h2 className="text-xl font-bold text-zinc-50 mb-2">Request Submitted!</h2>
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Your PT request has been received. The gym owner will review and confirm your trainer assignment shortly.
+          </p>
         </div>
-        <h2 className="text-xl font-bold text-zinc-50 mb-2">Request Submitted!</h2>
-        <p className="text-sm text-zinc-400 leading-relaxed">
-          Your PT request has been received. The gym owner will review and confirm your trainer assignment shortly.
-        </p>
-        <p className="text-xs text-zinc-600 mt-6">Hybrid Fitness</p>
+
+        <a
+          href="/rules.pdf"
+          download="Hybrid Fitness Rules.pdf"
+          className="flex items-center justify-center gap-2 w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-blue-600/50 text-zinc-300 hover:text-blue-400 text-sm font-medium rounded-xl px-4 py-3 transition-colors mb-4"
+        >
+          <FileDown className="w-4 h-4" />
+          Download Gym Rules (PDF)
+        </a>
+
+        <div className="glass rounded-2xl border border-zinc-800 overflow-hidden">
+          <div className="px-5 py-4 border-b border-zinc-800">
+            <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">Hybrid Fitness: Official Gym Policies</h2>
+          </div>
+          <div className="overflow-y-auto max-h-[55vh] px-5 py-4 space-y-5">
+            <RuleSection title="Equipment &amp; Facility Policies" rules={[
+              ["Cardio Equipment Usage", "Cardio equipment (Treadmills, Cross-trainers, and Cycles) usage is restricted to a maximum of 15 minutes per session."],
+              ["Daily Time Limit", "The maximum allowed time per member, per day, is 100 minutes."],
+              ["Hogging Prohibited", "Do not hog any equipment, including weight stations or cardio machines."],
+              ["Weight Re-racking", "Members must re-rack all weights and return equipment to its proper storage place after use."],
+              ["Cleanliness", "Maintain proper hygiene. Do not leave your sweat behind on benches, mats, or equipment."],
+              ["Reporting Damage", "Immediately report any damaged or malfunctioning equipment to management for prompt repair."],
+            ]} />
+            <div className="border-t border-zinc-800" />
+            <RuleSection title="Conduct &amp; Etiquette" rules={[
+              ["Mutual Respect", "All trainers must be treated with the utmost respect."],
+              ["Professional Conduct", "Misbehaviour towards trainers will not be tolerated. Management holds full authority to terminate memberships if any complaint of misbehaviour is registered."],
+              ["Positive Atmosphere", "Never laugh at beginners. Leave your ego at the door."],
+              ["Member Space", "Always respect other members' personal space."],
+              ["Interruption Policy", "Do not interrupt another member mid-set."],
+              ["Phone Usage", "Mobile phones are not allowed on the workout floor during sessions, with exceptions for urgent calls only."],
+            ]} />
+            <div className="border-t border-zinc-800" />
+            <RuleSection title="Access &amp; Appearance" rules={[
+              ["Gym Attire", "Proper athletic attire (gym ware) and clean, dedicated indoor athletic shoes are mandatory on the workout floor. No formal wear is permitted."],
+              ["Outside Footwear", "For the cleanliness and maintenance of the facility, outside shoes are strictly prohibited on the workout floor."],
+              ["Children", "Children are not allowed with clients on the workout floor."],
+              ["Guest Access", "Non-members accompanying members are not allowed on the workout floor."],
+            ]} />
+            <div className="border-t border-zinc-800" />
+            <RuleSection title="Membership &amp; Missed Sessions" rules={[
+              ["Non-Refundable", "Missed days, weeks, or months due to personal reasons will not be compensated, extended, or refunded."],
+              ["Membership Restrictions", "Memberships cannot be frozen, paused, or transferred for any reason."],
+              ["Defined Periods", "The membership period begins and ends as stated at the time of registration. All members are encouraged to plan their training schedules accordingly."],
+            ]} />
+            <div className="border-t border-zinc-800" />
+            <p className="text-xs text-zinc-500 italic leading-relaxed">
+              Our trainers are responsible for ensuring that the above policies are strictly enforced. Thank you for making Hybrid Fitness a place of discipline and commitment.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-zinc-600 mt-4">Hybrid Fitness</p>
       </div>
     );
   }
