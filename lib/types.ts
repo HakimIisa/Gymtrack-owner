@@ -2,6 +2,15 @@ export type MemberStatus = "pending" | "active" | "overdue" | "expired";
 export type MemberPlan = "monthly" | "quarterly" | "half-yearly" | "yearly" | "custom";
 export type MemberGender = "male" | "female";
 
+export interface MinorConsent {
+  parentName: string;
+  relationship: string;
+  parentPhone: string;
+  emergencyPhone: string;
+  medicalConditions: string;
+  acknowledgedAt: string;    // ISO date string
+}
+
 export interface Member {
   id: string;
   name: string;
@@ -14,6 +23,8 @@ export interface Member {
   expiryDate: string | null;
   status: MemberStatus;
   createdAt: string;         // ISO date string
+  age?: number;
+  minorConsent?: MinorConsent;
 }
 
 export interface Payment {
@@ -25,6 +36,7 @@ export interface Payment {
   amount: number;
   date: string;              // ISO date string
   note?: string;
+  gender?: MemberGender;
 }
 
 export interface PricingConfig {

@@ -72,6 +72,13 @@ export default function FinancesPage() {
 function GymFinancesTab() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [genderFilter, setGenderFilter] = useState<"all" | "male" | "female">("all");
+
+  const now = new Date();
+  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+  const [dateFrom, setDateFrom] = useState(firstOfMonth);
+  const [dateTo, setDateTo] = useState(lastOfMonth);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,20 +90,64 @@ function GymFinancesTab() {
   useEffect(() => { load(); }, [load]);
 
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
-  const thisMonth = new Date().toISOString().slice(0, 7);
-  const monthRevenue = payments
-    .filter((p) => p.date.startsWith(thisMonth))
-    .reduce((sum, p) => sum + p.amount, 0);
+
+  const filtered = payments.filter((p) => {
+    if (genderFilter !== "all" && p.gender !== genderFilter) return false;
+    if (dateFrom && p.date < dateFrom) return false;
+    if (dateTo && p.date > dateTo) return false;
+    return true;
+  });
+
+  const periodRevenue = filtered.reduce((sum, p) => sum + p.amount, 0);
 
   return (
     <>
+      {/* Filters row */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        {/* Gender toggle */}
+        <div className="flex gap-0.5 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
+          {(["all", "male", "female"] as const).map((g) => (
+            <button
+              key={g}
+              onClick={() => setGenderFilter(g)}
+              className={cn(
+                "px-3 py-1 rounded-md text-xs font-medium transition-all capitalize",
+                genderFilter === g
+                  ? "bg-zinc-700 text-zinc-100"
+                  : "text-zinc-500 hover:text-zinc-300"
+              )}
+            >
+              {g === "all" ? "All" : g.charAt(0).toUpperCase() + g.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Date range */}
+        <div className="flex items-center gap-2 text-xs text-zinc-500">
+          <span>From</span>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-zinc-600"
+          />
+          <span>To</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-zinc-600"
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="glass border border-zinc-800 rounded-2xl p-4">
           <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center mb-3">
             <TrendingUp className="w-4 h-4 text-purple-400" />
           </div>
-          <p className="text-xs text-zinc-500 mb-1">This Month</p>
-          <p className="text-2xl font-bold text-zinc-100">₹{monthRevenue.toLocaleString()}</p>
+          <p className="text-xs text-zinc-500 mb-1">Selected Period</p>
+          <p className="text-2xl font-bold text-zinc-100">₹{periodRevenue.toLocaleString()}</p>
         </div>
         <div className="glass border border-zinc-800 rounded-2xl p-4">
           <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center mb-3">
@@ -122,8 +173,8 @@ function GymFinancesTab() {
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
           </div>
-        ) : payments.length === 0 ? (
-          <div className="text-center py-12 text-zinc-600 text-sm">No transactions yet.</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12 text-zinc-600 text-sm">No transactions for selected filters.</div>
         ) : (
           <table className="w-full">
             <thead>
@@ -136,9 +187,9 @@ function GymFinancesTab() {
               </tr>
             </thead>
             <tbody>
-              {payments.map((p, i) => (
+              {filtered.map((p, i) => (
                 <tr key={p.id}
-                  className={`border-b border-zinc-800/60 hover:bg-zinc-800/20 transition-colors ${i === payments.length - 1 ? "border-b-0" : ""}`}>
+                  className={`border-b border-zinc-800/60 hover:bg-zinc-800/20 transition-colors ${i === filtered.length - 1 ? "border-b-0" : ""}`}>
                   <td className="px-4 py-3">
                     <p className="text-sm font-medium text-zinc-100">{p.memberName}</p>
                   </td>

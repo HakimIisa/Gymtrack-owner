@@ -7,6 +7,8 @@ import {
   getDoc,
   query,
   orderBy,
+  where,
+  limit,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Member, Payment, MemberPlan, MemberStatus, PLAN_DURATIONS, PricingConfig, DEFAULT_PRICING } from "./types";
@@ -81,6 +83,14 @@ export async function getMember(id: string): Promise<Member | null> {
   return member;
 }
 
+export async function memberExistsByContact(phone: string, email: string): Promise<boolean> {
+  const [phoneSnap, emailSnap] = await Promise.all([
+    getDocs(query(collection(db, "members"), where("phone", "==", phone), limit(1))),
+    getDocs(query(collection(db, "members"), where("email", "==", email), limit(1))),
+  ]);
+  return !phoneSnap.empty || !emailSnap.empty;
+}
+
 export async function addMember(data: Omit<Member, "id" | "createdAt" | "status" | "expiryDate">): Promise<string> {
   const ref = await addDoc(collection(db, "members"), {
     ...data,
@@ -116,6 +126,7 @@ export async function recordPayment(
     amount,
     date: today,
     note: note ?? "",
+    gender: member.gender,
   });
 
   await updateDoc(doc(db, "members", member.id), {

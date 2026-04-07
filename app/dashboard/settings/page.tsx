@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getPricing, savePricing } from "@/lib/members";
-import { getSettings, saveSettings } from "@/lib/settings";
 import { PricingConfig, PLAN_LABELS, MemberPlan } from "@/lib/types";
 import { savePin, getStoredPin } from "@/components/PinLock";
 import { updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Check, Loader2, KeyRound, DollarSign, ShieldCheck, Globe } from "lucide-react";
+import { Check, Loader2, KeyRound, DollarSign, ShieldCheck } from "lucide-react";
 
 const plans: Exclude<MemberPlan, "custom">[] = ["monthly", "quarterly", "half-yearly", "yearly"];
 
@@ -18,59 +17,9 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-zinc-50">Settings</h1>
         <p className="text-sm text-zinc-500 mt-0.5">Manage pricing, PIN, and account</p>
       </div>
-      <GeneralSection />
       <PricingSection />
       <PinSection />
       <AccountSection />
-    </div>
-  );
-}
-
-// ── General ───────────────────────────────────────────────────────────────────
-
-function GeneralSection() {
-  const [reviewLink, setReviewLink] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    getSettings().then((s) => setReviewLink(s.googleReviewLink));
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    await saveSettings({ googleReviewLink: reviewLink });
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  return (
-    <div className="glass border border-zinc-800 rounded-2xl p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-          <Globe className="w-3.5 h-3.5 text-green-400" />
-        </div>
-        <h2 className="text-sm font-semibold text-zinc-200">General</h2>
-      </div>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">Google Review Link</label>
-          <input
-            type="url"
-            value={reviewLink}
-            onChange={(e) => setReviewLink(e.target.value)}
-            placeholder="https://g.page/r/..."
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors"
-          />
-          <p className="text-xs text-zinc-600 mt-1">Sent to members in their 30-day review SMS.</p>
-        </div>
-        <button onClick={handleSave} disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors">
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <Check className="w-3.5 h-3.5" /> : null}
-          {saved ? "Saved!" : saving ? "Saving..." : "Save"}
-        </button>
-      </div>
     </div>
   );
 }

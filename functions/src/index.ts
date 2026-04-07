@@ -80,53 +80,40 @@ export const dailyMembershipCheck = onSchedule(
       // Update status if changed
       if (newStatus !== member.status) {
         memberBatch.update(docSnap.ref, { status: newStatus });
-
-        if (newStatus === "overdue" && member.phone) {
-          smsPromises.push(
-            sendSMS(
-              member.phone,
-              `Hi ${member.name}, your Hybrid Fitness membership has expired. You have a 5-day grace period to renew. Please visit us soon.`
-            )
-          );
-        }
       }
 
-      // 3-day reminder
       const daysUntilExpiry = daysDiff(member.expiryDate, today);
+
+      // 3-day before expiry reminder
       if (member.status === "active" && daysUntilExpiry === 3 && member.phone) {
         smsPromises.push(
           sendSMS(
             member.phone,
-            `Hi ${member.name}, your Hybrid Fitness membership expires in 3 days. Please visit us to renew.`
+            `Hi ${member.name}, your Hybrid Fitness membership expires in 3 days. Please visit us to renew. Please ignore if you have already paid.`
           )
         );
       }
 
-      // 1-day reminder
-      if (member.status === "active" && daysUntilExpiry === 1 && member.phone) {
+      // Day of expiry reminder
+      if (member.status === "active" && daysUntilExpiry === 0 && member.phone) {
         smsPromises.push(
           sendSMS(
             member.phone,
-            `Hi ${member.name}, your Hybrid Fitness membership expires tomorrow. Please renew today.`
+            `Hi ${member.name}, your Hybrid Fitness membership expires today. Please visit us to renew. Please ignore if you have already paid.`
           )
         );
       }
 
-      // 30-day review SMS
-      if (member.createdAt && member.phone) {
-        const joinDate = new Date(member.createdAt);
-        joinDate.setHours(0, 0, 0, 0);
-        const joinedDaysAgo = Math.floor((today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (joinedDaysAgo === 30) {
-          const reviewPart = reviewLink ? ` Rate us on Google: ${reviewLink}` : "";
-          smsPromises.push(
-            sendSMS(
-              member.phone,
-              `Hi ${member.name}, you've completed 1 month at Hybrid Fitness! We'd love your feedback.${reviewPart}`
-            )
-          );
-        }
+      // 1 day after expiry reminder
+      if (diffDays === 1 && member.phone) {
+        smsPromises.push(
+          sendSMS(
+            member.phone,
+            `Hi ${member.name}, your Hybrid Fitness membership expired yesterday. You have a grace period to renew. Please visit us soon. Please ignore if you have already paid.`
+          )
+        );
       }
+
     }
 
     await memberBatch.commit();

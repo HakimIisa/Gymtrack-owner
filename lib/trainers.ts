@@ -8,6 +8,7 @@ import {
   query,
   orderBy,
   where,
+  limit,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Trainer, PTRequest, PTPayment } from "./types";
@@ -57,6 +58,22 @@ export async function getPendingPTRequests(): Promise<PTRequest[]> {
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PTRequest));
+}
+
+export async function ptRequestExistsForTrainer(phone: string, trainerId: string): Promise<boolean> {
+  const snap = await getDocs(
+    query(
+      collection(db, "ptRequests"),
+      where("memberPhone", "==", phone),
+      where("trainerId", "==", trainerId),
+      limit(1)
+    )
+  );
+  if (snap.empty) return false;
+  return snap.docs.some((d) => {
+    const status = d.data().status as string;
+    return status === "pending" || status === "active";
+  });
 }
 
 export async function submitPTRequest(data: Omit<PTRequest, "id" | "createdAt" | "status" | "amount" | "startDate" | "expiryDate">): Promise<string> {
