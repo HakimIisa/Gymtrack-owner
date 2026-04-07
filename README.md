@@ -274,3 +274,22 @@ gymtrack/
 └── functions/
     └── src/index.ts              # Cloud Function — daily SMS & status scheduler
 ```
+
+---
+
+## 11. License
+
+This project is proprietary software developed exclusively for **Hybrid Fitness**.
+
+All rights reserved. No part of this codebase — including source code, design, logic, or assets — may be copied, modified, distributed, sublicensed, or used in any form without the express written permission of the author.
+
+---
+
+## 12. Author
+
+**Hakim Mohammad Iisa**
+Full-Stack Developer
+
+Designed, architected, and built GymTrack from the ground up — covering the owner dashboard, public-facing QR registration flow, real-time Firestore data layer, Firebase Cloud Functions for automated SMS scheduling, and the complete UI in Next.js with Tailwind CSS.
+
+> Built for Hybrid Fitness · India · 2026
