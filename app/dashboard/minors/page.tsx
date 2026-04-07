@@ -13,7 +13,7 @@ export default function MinorsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     const all = await getMembers();
-    setMinors(all.filter((m) => m.age !== undefined && m.age <= 15));
+    setMinors(all.filter((m) => m.age !== undefined && m.age <= 15 && m.status === "active"));
     setLoading(false);
   }, []);
 
