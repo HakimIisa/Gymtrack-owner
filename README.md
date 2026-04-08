@@ -8,20 +8,27 @@ A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym 
 
 ## Table of Contents
 
-1. [Dashboard](#1-dashboard)
-2. [Member Management](#2-member-management)
-3. [QR Code Self-Registration](#3-qr-code-self-registration)
-4. [Minor Members & Parental Consent](#4-minor-members--parental-consent)
-5. [Trainers & Personal Training](#5-trainers--personal-training)
-6. [Finances](#6-finances)
-7. [Automated SMS Notifications](#7-automated-sms-notifications)
-8. [Settings](#8-settings)
-9. [Tech Stack](#9-tech-stack)
-10. [Project Structure](#10-project-structure)
+1. [Demo Video](#1-demo-video)
+2. [Dashboard](#2-dashboard)
+3. [Member Management](#3-member-management)
+4. [QR Code Self-Registration](#4-qr-code-self-registration)
+5. [Minor Members & Parental Consent](#5-minor-members--parental-consent)
+6. [Trainers & Personal Training](#6-trainers--personal-training)
+7. [Finances](#7-finances)
+8. [Automated SMS Notifications](#8-automated-sms-notifications)
+9. [Settings](#9-settings)
+10. [Tech Stack](#10-tech-stack)
+11. [Project Structure](#11-project-structure)
 
 ---
 
-## 1. Dashboard
+## 1. Demo Video
+
+<video src="screenshots-for-github/Gym Track Demo Video.mp4" controls width="100%"></video>
+
+---
+
+## 2. Dashboard
 
 ![Dashboard](screenshots-for-github/dashboard.png)
 
@@ -42,7 +49,7 @@ An amber alert banner appears at the bottom whenever members are awaiting approv
 
 ---
 
-## 2. Member Management
+## 3. Member Management
 
 ![Members Tab](screenshots-for-github/members-tab.png)
 
@@ -83,7 +90,7 @@ Pending  →  Active  →  Overdue (5-day grace)  →  Expired
 
 ---
 
-## 3. QR Code Self-Registration
+## 4. QR Code Self-Registration
 
 ![Registration Form](screenshots-for-github/membership-registration-form.png)
 
@@ -109,7 +116,7 @@ All submissions are stored in Firestore as `pending` — the owner reviews and a
 
 ---
 
-## 4. Minor Members & Parental Consent
+## 5. Minor Members & Parental Consent
 
 ![Minors Tab](screenshots-for-github/minors-tab.png)
 
@@ -144,7 +151,7 @@ All consent data is stored in Firestore against the member record and is accessi
 
 ---
 
-## 5. Trainers & Personal Training
+## 6. Trainers & Personal Training
 
 ![Trainers Tab](screenshots-for-github/trainers-tab.png)
 
@@ -168,7 +175,7 @@ Pending  →  Active (owner approves & sets fee)  →  Unassigned (auto-expires 
 
 ---
 
-## 6. Finances
+## 7. Finances
 
 ### PIN Protection
 
@@ -199,7 +206,7 @@ The entire Finances section sits behind a 4-digit PIN. Financial data remains bl
 
 ---
 
-## 7. Automated SMS Notifications
+## 8. Automated SMS Notifications
 
 Firebase Cloud Functions run a **daily scheduled job** that updates membership statuses and sends SMS messages via **MSG91** at three key moments in the membership lifecycle:
 
@@ -213,7 +220,7 @@ The same daily job automatically unassigns any PT relationship whose 30-day acti
 
 ---
 
-## 8. Settings
+## 9. Settings
 
 ![Settings](screenshots-for-github/settings-tab.png)
 
@@ -228,7 +235,7 @@ Update the owner login email or password. Both operations require re-entering th
 
 ---
 
-## 9. Tech Stack
+## 10. Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -241,7 +248,7 @@ Update the owner login email or password. Both operations require re-entering th
 
 ---
 
-## 10. Project Structure
+## 11. Project Structure
 
 ```
 gymtrack/
