@@ -13,6 +13,43 @@ const genders: { value: MemberGender; label: string }[] = [
   { value: "female", label: "Female" },
 ];
 
+// ── Validation helpers ───────────────────────────────────────────────────────
+
+const PHONE_RE = /^[+\d][\d\s\-]{6,17}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RATE_LIMIT_KEY = "gymtrack_last_register";
+const RATE_LIMIT_MS = 60_000;
+
+function extractDigits(s: string) { return s.replace(/\D/g, ""); }
+
+function validatePhone(phone: string): string | null {
+  if (!phone.trim()) return "Phone number is required.";
+  if (!PHONE_RE.test(phone.trim())) return "Enter a valid phone number (digits, spaces, +, - only).";
+  const digits = extractDigits(phone);
+  if (digits.length < 7 || digits.length > 15) return "Phone must have 7–15 digits.";
+  return null;
+}
+
+function validateName(name: string): string | null {
+  if (!name.trim()) return "Name is required.";
+  if (name.trim().length > 80) return "Name must be 80 characters or fewer.";
+  return null;
+}
+
+function checkRateLimit(): string | null {
+  try {
+    const last = localStorage.getItem(RATE_LIMIT_KEY);
+    if (last && Date.now() - Number(last) < RATE_LIMIT_MS) {
+      return "You recently submitted a registration. Please wait before submitting again.";
+    }
+  } catch { /* localStorage unavailable — skip */ }
+  return null;
+}
+
+function setRateLimitStamp() {
+  try { localStorage.setItem(RATE_LIMIT_KEY, String(Date.now())); } catch { /* skip */ }
+}
+
 export default function RegisterPage() {
   const [activeTab, setActiveTab] = useState<"member" | "pt">("member");
 
@@ -124,6 +161,22 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ── Validation ──
+    const nameErr = validateName(form.name);
+    if (nameErr) { setError(nameErr); return; }
+
+    const phoneErr = validatePhone(form.phone);
+    if (phoneErr) { setError(phoneErr); return; }
+
+    if (form.email.trim() && !EMAIL_RE.test(form.email.trim())) {
+      setError("Enter a valid email address."); return;
+    }
+
+    if (form.age !== "" && (isNaN(age) || age < 1 || age > 100)) {
+      setError("Age must be between 1 and 100."); return;
+    }
+
     if (!form.gender || !form.plan) {
       setError("Please fill in all fields.");
       return;
@@ -132,6 +185,22 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
       setError("Please enter a valid number of days.");
       return;
     }
+
+    if (isMinor) {
+      const parentNameErr = validateName(consent.parentName);
+      if (parentNameErr) { setError("Parent name: " + parentNameErr); return; }
+
+      const parentPhoneErr = validatePhone(consent.parentPhone);
+      if (parentPhoneErr) { setError("Parent phone: " + parentPhoneErr); return; }
+
+      const emergencyPhoneErr = validatePhone(consent.emergencyPhone);
+      if (emergencyPhoneErr) { setError("Emergency phone: " + emergencyPhoneErr); return; }
+    }
+
+    // ── Rate limit ──
+    const rateErr = checkRateLimit();
+    if (rateErr) { setError(rateErr); return; }
+
     setError("");
     setSubmitting(true);
     try {
@@ -166,6 +235,8 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
             }
           : {}),
       });
+
+      setRateLimitStamp();
 
       if (wantsPT) {
         onSwitchToPT();
@@ -510,7 +581,18 @@ function PTTab() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const nameErr = validateName(form.memberName);
+    if (nameErr) { setError(nameErr); return; }
+
+    const phoneErr = validatePhone(form.memberPhone);
+    if (phoneErr) { setError(phoneErr); return; }
+
     if (!form.trainerId) { setError("Please select a trainer."); return; }
+
+    const rateErr = checkRateLimit();
+    if (rateErr) { setError(rateErr); return; }
+
     setError("");
     setSubmitting(true);
     try {
@@ -528,6 +610,7 @@ function PTTab() {
         trainerId: trainer.id,
         trainerName: trainer.name,
       });
+      setRateLimitStamp();
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");

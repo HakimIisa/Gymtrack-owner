@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Members — anyone can create (public QR registration), auth required for everything else
+    match /members/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // Payments — auth required
+    match /payments/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Config (pricing, settings) — auth required
+    match /config/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Trainers — public read (needed for QR registration trainer list), auth required for writes
+    match /trainers/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // PT Payments — auth required
+    match /ptPayments/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    // PT Requests — anyone can create (public QR form), auth required to read/update/delete
+    match /ptRequests/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

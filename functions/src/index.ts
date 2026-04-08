@@ -10,6 +10,10 @@ const SMS_ENABLED = false;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function sanitizeForSMS(str: string): string {
+  return str.replace(/[^\w\s\-'.]/g, "").trim().slice(0, 50);
+}
+
 function daysDiff(dateStr: string, referenceDate: Date): number {
   const ref = new Date(referenceDate);
   ref.setHours(0, 0, 0, 0);
@@ -88,7 +92,7 @@ export const dailyMembershipCheck = onSchedule(
         smsPromises.push(
           sendSMS(
             member.phone,
-            `Hi ${member.name}, your Hybrid Fitness membership expires in 3 days. Please visit us to renew. Please ignore if you have already paid.`
+            `Hi ${sanitizeForSMS(member.name)}, your Hybrid Fitness membership expires in 3 days. Please visit us to renew. Please ignore if you have already paid.`
           )
         );
       }
@@ -98,7 +102,7 @@ export const dailyMembershipCheck = onSchedule(
         smsPromises.push(
           sendSMS(
             member.phone,
-            `Hi ${member.name}, your Hybrid Fitness membership expires today. Please visit us to renew. Please ignore if you have already paid.`
+            `Hi ${sanitizeForSMS(member.name)}, your Hybrid Fitness membership expires today. Please visit us to renew. Please ignore if you have already paid.`
           )
         );
       }
@@ -108,7 +112,7 @@ export const dailyMembershipCheck = onSchedule(
         smsPromises.push(
           sendSMS(
             member.phone,
-            `Hi ${member.name}, your Hybrid Fitness membership expired yesterday. You have a grace period to renew. Please visit us soon. Please ignore if you have already paid.`
+            `Hi ${sanitizeForSMS(member.name)}, your Hybrid Fitness membership expired yesterday. You have a grace period to renew. Please visit us soon. Please ignore if you have already paid.`
           )
         );
       }

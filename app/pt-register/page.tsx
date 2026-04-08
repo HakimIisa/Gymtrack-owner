@@ -5,6 +5,39 @@ import { getTrainers, submitPTRequest } from "@/lib/trainers";
 import { Trainer } from "@/lib/types";
 import { Dumbbell, CheckCircle, Loader2 } from "lucide-react";
 
+const PHONE_RE = /^[+\d][\d\s\-]{6,17}$/;
+const RATE_LIMIT_KEY = "gymtrack_last_register";
+const RATE_LIMIT_MS = 60_000;
+
+function extractDigits(s: string) { return s.replace(/\D/g, ""); }
+
+function validatePhone(phone: string): string | null {
+  if (!phone.trim()) return "Phone number is required.";
+  if (!PHONE_RE.test(phone.trim())) return "Enter a valid phone number.";
+  const digits = extractDigits(phone);
+  if (digits.length < 7 || digits.length > 15) return "Phone must have 7–15 digits.";
+  return null;
+}
+
+function validateName(name: string): string | null {
+  if (!name.trim()) return "Name is required.";
+  if (name.trim().length > 80) return "Name must be 80 characters or fewer.";
+  return null;
+}
+
+function checkRateLimit(): string | null {
+  try {
+    const last = localStorage.getItem(RATE_LIMIT_KEY);
+    if (last && Date.now() - Number(last) < RATE_LIMIT_MS)
+      return "You recently submitted a registration. Please wait before submitting again.";
+  } catch { /* skip */ }
+  return null;
+}
+
+function setRateLimitStamp() {
+  try { localStorage.setItem(RATE_LIMIT_KEY, String(Date.now())); } catch { /* skip */ }
+}
+
 export default function PTRegisterPage() {
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [form, setForm] = useState({
@@ -25,7 +58,18 @@ export default function PTRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const nameErr = validateName(form.memberName);
+    if (nameErr) { setError(nameErr); return; }
+
+    const phoneErr = validatePhone(form.memberPhone);
+    if (phoneErr) { setError(phoneErr); return; }
+
     if (!form.trainerId) { setError("Please select a trainer."); return; }
+
+    const rateErr = checkRateLimit();
+    if (rateErr) { setError(rateErr); return; }
+
     setError("");
     setSubmitting(true);
     try {
@@ -37,6 +81,7 @@ export default function PTRegisterPage() {
         trainerId: trainer.id,
         trainerName: trainer.name,
       });
+      setRateLimitStamp();
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");
