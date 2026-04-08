@@ -24,7 +24,7 @@ A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym 
 
 ## 1. Demo Video
 
-<video src="screenshots-for-github/Gym Track Demo Video.mp4" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/5391e47a-da08-44db-95c5-382bf55e2866" controls width="100%"></video>
 
 ---
 
