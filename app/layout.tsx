@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
+import LogoWatermark from "@/components/LogoWatermark";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,6 +30,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="min-h-full bg-black text-zinc-50 antialiased">
+        <LogoWatermark />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

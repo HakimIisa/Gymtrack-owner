@@ -261,9 +261,11 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
 
         {/* Email */}
         <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5">Email</label>
+          <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+            Email <span className="text-zinc-600 font-normal">(optional)</span>
+          </label>
           <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
-            placeholder="you@email.com" required
+            placeholder="you@email.com"
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors" />
         </div>
 

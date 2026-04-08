@@ -4,6 +4,10 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 const db = admin.firestore();
 
+// ── SMS feature flag ──────────────────────────────────────────────────────────
+// Set to true when MSG91 DLT registration is complete and SMS is ready to use.
+const SMS_ENABLED = false;
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function daysDiff(dateStr: string, referenceDate: Date): number {
@@ -15,6 +19,7 @@ function daysDiff(dateStr: string, referenceDate: Date): number {
 }
 
 async function sendSMS(phone: string, message: string): Promise<void> {
+  if (!SMS_ENABLED) return;
   try {
     const authKey = process.env.MSG91_AUTH_KEY;
     const senderId = process.env.MSG91_SENDER_ID ?? "HYBFIT";
@@ -51,12 +56,6 @@ export const dailyMembershipCheck = onSchedule(
   async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    // Pre-fetch Google review link once
-    const settingsSnap = await db.doc("config/settings").get();
-    const reviewLink: string = settingsSnap.exists
-      ? (settingsSnap.data()?.googleReviewLink ?? "")
-      : "";
 
     // ── Membership status + SMS ──────────────────────────────────────────────
     const snapshot = await db.collection("members").get();
