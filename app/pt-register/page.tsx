@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrainers, submitPTRequest } from "@/lib/trainers";
+import { getTrainers, submitPTRequest, ptRequestExistsForTrainer } from "@/lib/trainers";
 import { Trainer } from "@/lib/types";
 import { Dumbbell, CheckCircle, Loader2 } from "lucide-react";
 
@@ -73,6 +73,12 @@ export default function PTRegisterPage() {
     setError("");
     setSubmitting(true);
     try {
+      const dup = await ptRequestExistsForTrainer(form.memberPhone.trim(), form.trainerId);
+      if (dup) {
+        setError("You already have an active or pending PT request with this trainer.");
+        setSubmitting(false);
+        return;
+      }
       const trainer = trainers.find((t) => t.id === form.trainerId)!;
       await submitPTRequest({
         memberId: "",

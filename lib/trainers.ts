@@ -8,7 +8,6 @@ import {
   query,
   orderBy,
   where,
-  limit,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { Trainer, PTRequest, PTPayment } from "./types";
@@ -64,15 +63,13 @@ export async function ptRequestExistsForTrainer(phone: string, trainerId: string
   const snap = await getDocs(
     query(
       collection(db, "ptRequests"),
-      where("memberPhone", "==", phone),
-      where("trainerId", "==", trainerId),
-      limit(1)
+      where("memberPhone", "==", phone)
     )
   );
   if (snap.empty) return false;
   return snap.docs.some((d) => {
-    const status = d.data().status as string;
-    return status === "pending" || status === "active";
+    const data = d.data();
+    return data.trainerId === trainerId && (data.status === "pending" || data.status === "active");
   });
 }
 
@@ -132,6 +129,18 @@ export async function directAssignPT(
 
 export async function unassignPT(requestId: string): Promise<void> {
   await updateDoc(doc(db, "ptRequests", requestId), { status: "unassigned" });
+}
+
+export async function unassignPTByMemberId(memberId: string): Promise<void> {
+  const snap = await getDocs(
+    query(
+      collection(db, "ptRequests"),
+      where("memberId", "==", memberId),
+      where("status", "in", ["active", "pending"])
+    )
+  );
+  const updates = snap.docs.map((d) => updateDoc(d.ref, { status: "unassigned" }));
+  await Promise.all(updates);
 }
 
 // ── PT Payments ───────────────────────────────────────────────────────────────

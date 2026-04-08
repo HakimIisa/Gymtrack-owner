@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrainers, directAssignPT } from "@/lib/trainers";
+import { getTrainers, directAssignPT, ptRequestExistsForTrainer } from "@/lib/trainers";
 import { getMembers } from "@/lib/members";
 import { Member, Trainer } from "@/lib/types";
 import { X, Loader2, Search } from "lucide-react";
@@ -41,6 +41,12 @@ export default function AssignPTModal({ onClose, onSuccess }: Props) {
     setError("");
     setSubmitting(true);
     try {
+      const dup = await ptRequestExistsForTrainer(selectedMember.phone, selectedTrainer.id);
+      if (dup) {
+        setError("This member already has an active or pending PT request with this trainer.");
+        setSubmitting(false);
+        return;
+      }
       await directAssignPT(
         { id: selectedMember.id, name: selectedMember.name, phone: selectedMember.phone },
         { id: selectedTrainer.id, name: selectedTrainer.name }

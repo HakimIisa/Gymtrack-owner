@@ -55,7 +55,11 @@ export default function MembersPage() {
     if (!confirm(`Remove ${member.name} from the system? This cannot be undone.`)) return;
     const { deleteDoc, doc } = await import("firebase/firestore");
     const { db } = await import("@/lib/firebase");
-    await deleteDoc(doc(db, "members", member.id));
+    const { unassignPTByMemberId } = await import("@/lib/trainers");
+    await Promise.all([
+      deleteDoc(doc(db, "members", member.id)),
+      unassignPTByMemberId(member.id),
+    ]);
     load();
   };
 
