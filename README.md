@@ -23,7 +23,7 @@ A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym 
 
 ## 1. Dashboard
 
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](screenshots-for-github/dashboard.png)
 
 The owner's home screen gives a real-time snapshot of the entire gym at a glance. Eight stat cards update live from Firestore:
 
@@ -44,7 +44,7 @@ An amber alert banner appears at the bottom whenever members are awaiting approv
 
 ## 2. Member Management
 
-![Members Tab](screenshots/members-tab.png)
+![Members Tab](screenshots-for-github/members-tab.png)
 
 A full roster of every member with live status badges and per-row quick actions.
 
@@ -59,7 +59,7 @@ A full roster of every member with live status badges and per-row quick actions.
 
 **Adding members manually**
 
-![Add Member](screenshots/add-member-screen.png)
+![Add Member](screenshots-for-github/add-member-screen.png)
 
 The owner can manually add a member via a slide-up modal — full name, email, phone, gender, membership plan, and preferred start date.
 
@@ -85,7 +85,7 @@ Pending  →  Active  →  Overdue (5-day grace)  →  Expired
 
 ## 3. QR Code Self-Registration
 
-![Registration Form](screenshots/membership-registration-form.png)
+![Registration Form](screenshots-for-github/membership-registration-form.png)
 
 The public `/register` page lets new members sign up themselves by scanning a QR code — no owner involvement needed at sign-up time. The page has two tabs.
 
@@ -111,7 +111,7 @@ All submissions are stored in Firestore as `pending` — the owner reviews and a
 
 ## 4. Minor Members & Parental Consent
 
-![Minors Tab](screenshots/minors-tab.png)
+![Minors Tab](screenshots-for-github/minors-tab.png)
 
 A dedicated **Minors** tab in the sidebar lists all *active* members aged 15 and under, along with their parental consent information on a single screen.
 
@@ -119,7 +119,7 @@ Columns: Member name · Age · Parent / Guardian · Relationship · Parent Phone
 
 Each row has a **View Consent** button that opens the full formatted legal document:
 
-![Consent Form](screenshots/minors-consent-form.png)
+![Consent Form](screenshots-for-github/minors-consent-form.png)
 
 The **Parental Consent & Liability Waiver** modal shows:
 
@@ -146,7 +146,7 @@ All consent data is stored in Firestore against the member record and is accessi
 
 ## 5. Trainers & Personal Training
 
-![Trainers Tab](screenshots/trainers-tab.png)
+![Trainers Tab](screenshots-for-github/trainers-tab.png)
 
 Manage the gym's personal trainer roster and all PT client assignments from a single page.
 
@@ -172,15 +172,15 @@ Pending  →  Active (owner approves & sets fee)  →  Unassigned (auto-expires 
 
 ### PIN Protection
 
-![Finance PIN](screenshots/finance-teb-pin-protected.png)
+![Finance PIN](screenshots-for-github/finance-teb-pin-protected.png)
 
 The entire Finances section sits behind a 4-digit PIN. Financial data remains blurred until the correct PIN is entered. The PIN is set and changed from Settings.
 
 ### Gym Finances tab
 
-![Gym Finances](screenshots/gym-finance-page.png)
+![Gym Finances](screenshots-for-github/gym-finance-page.png)
 
-![Gym Finances Full View](screenshots/finance-tab.png)
+![Gym Finances Full View](screenshots-for-github/finance-tab.png)
 
 - **Selected Period** card — total revenue within the active date range and gender filter
 - **Total Revenue** card — all-time cumulative gym revenue, always unfiltered regardless of filters
@@ -191,7 +191,7 @@ The entire Finances section sits behind a 4-digit PIN. Financial data remains bl
 
 ### Personal Trainers tab
 
-![PT Finances](screenshots/pt-finances-tab.png)
+![PT Finances](screenshots-for-github/pt-finances-tab.png)
 
 - **PT This Month** and **All Time PT Revenue** summary cards
 - **Revenue by Trainer** — each trainer has their own collapsible section showing total earned and a line-by-line member payment breakdown
@@ -215,7 +215,7 @@ The same daily job automatically unassigns any PT relationship whose 30-day acti
 
 ## 8. Settings
 
-![Settings](screenshots/settings-tab.png)
+![Settings](screenshots-for-github/settings-tab.png)
 
 **Membership Rates**
 Set male and female pricing independently for each plan — Monthly, Quarterly, Half-Yearly, and Yearly. Rates are saved to Firestore and used as the default amount when the owner records a payment.
