@@ -61,19 +61,24 @@ export async function getPendingPTRequests(): Promise<PTRequest[]> {
 }
 
 export async function ptRequestExistsForTrainer(phone: string, trainerId: string): Promise<boolean> {
-  const snap = await getDocs(
-    query(
-      collection(db, "ptRequests"),
-      where("memberPhone", "==", phone),
-      where("trainerId", "==", trainerId),
-      limit(1)
-    )
-  );
-  if (snap.empty) return false;
-  return snap.docs.some((d) => {
-    const status = d.data().status as string;
-    return status === "pending" || status === "active";
-  });
+  try {
+    const snap = await getDocs(
+      query(
+        collection(db, "ptRequests"),
+        where("memberPhone", "==", phone),
+        where("trainerId", "==", trainerId),
+        limit(1)
+      )
+    );
+    if (snap.empty) return false;
+    return snap.docs.some((d) => {
+      const status = d.data().status as string;
+      return status === "pending" || status === "active";
+    });
+  } catch {
+    // Unauthenticated users can't read ptRequests — skip duplicate check
+    return false;
+  }
 }
 
 export async function submitPTRequest(data: Omit<PTRequest, "id" | "createdAt" | "status" | "amount" | "startDate" | "expiryDate">): Promise<string> {

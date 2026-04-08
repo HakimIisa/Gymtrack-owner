@@ -17,6 +17,7 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
     name: "",
     email: "",
     phone: "",
+    age: "",
     gender: "" as MemberGender | "",
     plan: "monthly" as MemberPlan,
     customDays: "",
@@ -45,6 +46,7 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
         plan: form.plan,
         ...(form.plan === "custom" ? { customDays: Number(form.customDays) } : {}),
         startDate: form.startDate,
+        ...(form.age !== "" ? { age: Number(form.age) } : {}),
       });
       onSuccess();
     } catch {
@@ -85,6 +87,13 @@ export default function AddMemberModal({ onClose, onSuccess }: Props) {
             <label className="block text-xs font-medium text-zinc-400 mb-1.5">Phone Number</label>
             <input type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)}
               placeholder="+91 98765 43210" required
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Age</label>
+            <input type="number" value={form.age} onChange={(e) => set("age", e.target.value)}
+              min="1" max="100" placeholder="e.g. 25"
               className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors" />
           </div>
 

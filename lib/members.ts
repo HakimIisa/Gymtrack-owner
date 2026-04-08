@@ -84,14 +84,19 @@ export async function getMember(id: string): Promise<Member | null> {
 }
 
 export async function memberExistsByContact(phone: string, email: string): Promise<boolean> {
-  const checks: Promise<import("firebase/firestore").QuerySnapshot>[] = [
-    getDocs(query(collection(db, "members"), where("phone", "==", phone), limit(1))),
-  ];
-  if (email) {
-    checks.push(getDocs(query(collection(db, "members"), where("email", "==", email), limit(1))));
+  try {
+    const checks: Promise<import("firebase/firestore").QuerySnapshot>[] = [
+      getDocs(query(collection(db, "members"), where("phone", "==", phone), limit(1))),
+    ];
+    if (email) {
+      checks.push(getDocs(query(collection(db, "members"), where("email", "==", email), limit(1))));
+    }
+    const snaps = await Promise.all(checks);
+    return snaps.some((s) => !s.empty);
+  } catch {
+    // Unauthenticated users can't read the members collection — skip duplicate check
+    return false;
   }
-  const snaps = await Promise.all(checks);
-  return snaps.some((s) => !s.empty);
 }
 
 export async function addMember(data: Omit<Member, "id" | "createdAt" | "status" | "expiryDate">): Promise<string> {
