@@ -6,7 +6,7 @@ import { getPTPayments, getTrainers } from "@/lib/trainers";
 import { Payment, PTPayment, Trainer, PLAN_LABELS } from "@/lib/types";
 import PinLock from "@/components/PinLock";
 import RevenueChart from "@/components/RevenueChart";
-import { Lock, TrendingUp, Receipt, Loader2 } from "lucide-react";
+import { Lock, TrendingUp, Receipt, Loader2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function FinancesPage() {
@@ -220,6 +220,7 @@ function GymFinancesTab() {
 function PTFinancesTab() {
   const [ptPayments, setPTPayments] = useState<PTPayment[]>([]);
   const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [expandedTrainer, setExpandedTrainer] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -273,43 +274,52 @@ function PTFinancesTab() {
           <p className="text-sm font-medium text-zinc-300">Revenue by Trainer</p>
           {trainerBreakdown.map((row) => (
             <div key={row.trainer.id} className="glass border border-zinc-800 rounded-2xl overflow-hidden">
-              {/* Trainer header with total */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
+              {/* Trainer header with total — click to expand/collapse */}
+              <button
+                type="button"
+                onClick={() => setExpandedTrainer(expandedTrainer === row.trainer.id ? null : row.trainer.id)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-zinc-900/40 hover:bg-zinc-800/40 transition-colors text-left"
+              >
                 <div>
                   <p className="text-sm font-semibold text-zinc-100">{row.trainer.name}</p>
                   <p className="text-xs text-zinc-500">{row.trainer.specialization}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-zinc-500 mb-0.5">Total Revenue</p>
-                  <p className="text-lg font-bold text-green-400">₹{row.total.toLocaleString()}</p>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-xs text-zinc-500 mb-0.5">Total Revenue</p>
+                    <p className="text-lg font-bold text-green-400">₹{row.total.toLocaleString()}</p>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 text-zinc-500 transition-transform duration-200", expandedTrainer === row.trainer.id && "rotate-180")} />
                 </div>
-              </div>
-              {/* Individual payment rows */}
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-zinc-800">
-                    <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2">Member</th>
-                    <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2 hidden md:table-cell">Date</th>
-                    <th className="text-right text-xs font-medium text-zinc-500 px-4 py-2">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {row.payments.map((p, pi) => (
-                    <tr key={p.id}
-                      className={`hover:bg-zinc-800/20 transition-colors ${pi < row.payments.length - 1 ? "border-b border-zinc-800/60" : ""}`}>
-                      <td className="px-4 py-2.5">
-                        <p className="text-sm text-zinc-200">{p.memberName}</p>
-                      </td>
-                      <td className="px-4 py-2.5 hidden md:table-cell">
-                        <span className="text-xs text-zinc-500">{p.date}</span>
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
-                      </td>
+              </button>
+              {/* Individual payment rows — collapsible */}
+              {expandedTrainer === row.trainer.id && (
+                <table className="w-full border-t border-zinc-800">
+                  <thead>
+                    <tr className="border-b border-zinc-800">
+                      <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2">Member</th>
+                      <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2 hidden md:table-cell">Date</th>
+                      <th className="text-right text-xs font-medium text-zinc-500 px-4 py-2">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {row.payments.map((p, pi) => (
+                      <tr key={p.id}
+                        className={`hover:bg-zinc-800/20 transition-colors ${pi < row.payments.length - 1 ? "border-b border-zinc-800/60" : ""}`}>
+                        <td className="px-4 py-2.5">
+                          <p className="text-sm text-zinc-200">{p.memberName}</p>
+                        </td>
+                        <td className="px-4 py-2.5 hidden md:table-cell">
+                          <span className="text-xs text-zinc-500">{p.date}</span>
+                        </td>
+                        <td className="px-4 py-2.5 text-right">
+                          <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           ))}
         </div>

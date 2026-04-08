@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getPricing, savePricing } from "@/lib/members";
 import { PricingConfig, PLAN_LABELS, MemberPlan } from "@/lib/types";
 import { savePin, getStoredPin } from "@/components/PinLock";
-import { updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { verifyBeforeUpdateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Check, Loader2, KeyRound, DollarSign, ShieldCheck } from "lucide-react";
 
@@ -184,8 +184,8 @@ function AccountSection() {
     setSaving(true); setError(""); setSuccess("");
     try {
       await reauth();
-      await updateEmail(auth.currentUser!, newEmail);
-      setSuccess("Email updated successfully.");
+      await verifyBeforeUpdateEmail(auth.currentUser!, newEmail);
+      setSuccess("A verification email has been sent to the new address. Check your inbox and click the link to confirm the change.");
       setCurrentPassword(""); setNewEmail("");
     } catch {
       setError("Failed. Check your current password and try again.");

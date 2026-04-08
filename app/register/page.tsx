@@ -17,7 +17,8 @@ const genders: { value: MemberGender; label: string }[] = [
 
 const PHONE_RE = /^[+\d][\d\s\-]{6,17}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RATE_LIMIT_KEY = "gymtrack_last_register";
+const RATE_LIMIT_KEY_MEMBER = "gymtrack_last_register_member";
+const RATE_LIMIT_KEY_PT = "gymtrack_last_register_pt";
 const RATE_LIMIT_MS = 60_000;
 
 function extractDigits(s: string) { return s.replace(/\D/g, ""); }
@@ -36,9 +37,9 @@ function validateName(name: string): string | null {
   return null;
 }
 
-function checkRateLimit(): string | null {
+function checkRateLimit(key: string): string | null {
   try {
-    const last = localStorage.getItem(RATE_LIMIT_KEY);
+    const last = localStorage.getItem(key);
     if (last && Date.now() - Number(last) < RATE_LIMIT_MS) {
       return "You recently submitted a registration. Please wait before submitting again.";
     }
@@ -46,8 +47,8 @@ function checkRateLimit(): string | null {
   return null;
 }
 
-function setRateLimitStamp() {
-  try { localStorage.setItem(RATE_LIMIT_KEY, String(Date.now())); } catch { /* skip */ }
+function setRateLimitStamp(key: string) {
+  try { localStorage.setItem(key, String(Date.now())); } catch { /* skip */ }
 }
 
 export default function RegisterPage() {
@@ -198,7 +199,7 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
     }
 
     // ── Rate limit ──
-    const rateErr = checkRateLimit();
+    const rateErr = checkRateLimit(RATE_LIMIT_KEY_MEMBER);
     if (rateErr) { setError(rateErr); return; }
 
     setError("");
@@ -236,7 +237,7 @@ function MemberTab({ onSwitchToPT }: { onSwitchToPT: () => void }) {
           : {}),
       });
 
-      setRateLimitStamp();
+      setRateLimitStamp(RATE_LIMIT_KEY_MEMBER);
 
       if (wantsPT) {
         onSwitchToPT();
@@ -590,7 +591,7 @@ function PTTab() {
 
     if (!form.trainerId) { setError("Please select a trainer."); return; }
 
-    const rateErr = checkRateLimit();
+    const rateErr = checkRateLimit(RATE_LIMIT_KEY_PT);
     if (rateErr) { setError(rateErr); return; }
 
     setError("");
@@ -610,7 +611,7 @@ function PTTab() {
         trainerId: trainer.id,
         trainerName: trainer.name,
       });
-      setRateLimitStamp();
+      setRateLimitStamp(RATE_LIMIT_KEY_PT);
       setSubmitted(true);
     } catch {
       setError("Something went wrong. Please try again.");

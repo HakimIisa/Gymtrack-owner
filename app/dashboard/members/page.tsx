@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getMembers } from "@/lib/members";
-import { getPendingPTRequests } from "@/lib/trainers";
-import { Member, MemberStatus, PLAN_LABELS, PTRequest } from "@/lib/types";
+import { getPendingPTRequests, getTrainers } from "@/lib/trainers";
+import { Member, MemberStatus, PLAN_LABELS, PTRequest, Trainer } from "@/lib/types";
 import StatusBadge from "@/components/StatusBadge";
 import AddMemberModal from "@/components/AddMemberModal";
 import RecordPaymentModal from "@/components/RecordPaymentModal";
@@ -22,6 +22,7 @@ const statusFilters: { value: MemberStatus | "all"; label: string }[] = [
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [pendingPT, setPendingPT] = useState<PTRequest[]>([]);
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatus | "all">("all");
@@ -32,9 +33,10 @@ export default function MembersPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [data, pt] = await Promise.all([getMembers(), getPendingPTRequests()]);
+    const [data, pt, tr] = await Promise.all([getMembers(), getPendingPTRequests(), getTrainers()]);
     setMembers(data);
     setPendingPT(pt);
+    setTrainers(tr);
     setLoading(false);
   }, []);
 
@@ -229,6 +231,7 @@ export default function MembersPage() {
       {ptApproveTarget && (
         <ApprovePTModal
           request={ptApproveTarget}
+          defaultAmount={trainers.find((t) => t.id === ptApproveTarget.trainerId)?.monthlyRate}
           onClose={() => setPTApproveTarget(null)}
           onSuccess={() => { setPTApproveTarget(null); load(); }}
         />

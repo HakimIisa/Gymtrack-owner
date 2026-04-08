@@ -29,10 +29,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
-    // PT Requests — anyone can create (public QR form), auth required to read/update/delete
+    // PT Requests — anyone can create and read (needed for public duplicate check), auth required to update/delete
     match /ptRequests/{id} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow create, read: if true;
+      allow update, delete: if request.auth != null;
     }
   }
 }

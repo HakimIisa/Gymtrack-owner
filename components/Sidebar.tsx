@@ -95,8 +95,8 @@ export default function Sidebar() {
                 )}
                 <Icon className="w-4.5 h-4.5" strokeWidth={isActive ? 2 : 1.75} />
 
-                {/* Tooltip */}
-                <span className="absolute left-full ml-3 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                {/* Tooltip — hidden on mobile to prevent sticky hover */}
+                <span className="absolute left-full ml-3 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs rounded-md whitespace-nowrap opacity-0 hidden md:block group-hover:opacity-100 pointer-events-none transition-opacity">
                   {label}
                 </span>
               </Link>
@@ -111,7 +111,7 @@ export default function Sidebar() {
           className="group relative w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
         >
           <LogOut className="w-4 h-4" strokeWidth={1.75} />
-          <span className="absolute left-full ml-3 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+          <span className="absolute left-full ml-3 px-2 py-1 bg-zinc-800 text-zinc-200 text-xs rounded-md whitespace-nowrap opacity-0 hidden md:block group-hover:opacity-100 pointer-events-none transition-opacity">
             Sign out
           </span>
         </button>
