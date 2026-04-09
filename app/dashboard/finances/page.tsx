@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getPayments } from "@/lib/members";
-import { getPTPayments, getTrainers } from "@/lib/trainers";
+import { getPayments, deletePayment } from "@/lib/members";
+import { getPTPayments, getTrainers, deletePTPayment } from "@/lib/trainers";
 import { Payment, PTPayment, Trainer, PLAN_LABELS } from "@/lib/types";
 import PinLock from "@/components/PinLock";
 import RevenueChart from "@/components/RevenueChart";
-import { Lock, TrendingUp, Receipt, Loader2, ChevronDown } from "lucide-react";
+import { Lock, TrendingUp, Receipt, Loader2, ChevronDown, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function FinancesPage() {
@@ -184,6 +184,7 @@ function GymFinancesTab() {
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Date</th>
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Note</th>
                 <th className="text-right text-xs font-medium text-zinc-500 px-4 py-3">Amount</th>
+                <th className="w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -204,6 +205,19 @@ function GymFinancesTab() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                  </td>
+                  <td className="px-2 py-3 text-center">
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Delete ₹${p.amount.toLocaleString()} payment for ${p.memberName}?`)) return;
+                        await deletePayment(p.id);
+                        load();
+                      }}
+                      className="text-zinc-600 hover:text-red-400 transition-colors p-1"
+                      title="Delete entry"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -300,6 +314,7 @@ function PTFinancesTab() {
                       <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2">Member</th>
                       <th className="text-left text-xs font-medium text-zinc-500 px-4 py-2 hidden md:table-cell">Date</th>
                       <th className="text-right text-xs font-medium text-zinc-500 px-4 py-2">Amount</th>
+                      <th className="w-10"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -314,6 +329,19 @@ function PTFinancesTab() {
                         </td>
                         <td className="px-4 py-2.5 text-right">
                           <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                        </td>
+                        <td className="px-2 py-2.5 text-center">
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Delete ₹${p.amount.toLocaleString()} PT payment for ${p.memberName}?`)) return;
+                              await deletePTPayment(p.id);
+                              load();
+                            }}
+                            className="text-zinc-600 hover:text-red-400 transition-colors p-1"
+                            title="Delete entry"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -345,6 +373,7 @@ function PTFinancesTab() {
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Date</th>
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3 hidden md:table-cell">Note</th>
                 <th className="text-right text-xs font-medium text-zinc-500 px-4 py-3">Amount</th>
+                <th className="w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -365,6 +394,19 @@ function PTFinancesTab() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="text-sm font-semibold text-green-400">₹{p.amount.toLocaleString()}</span>
+                  </td>
+                  <td className="px-2 py-3 text-center">
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Delete ₹${p.amount.toLocaleString()} PT payment for ${p.memberName}?`)) return;
+                        await deletePTPayment(p.id);
+                        load();
+                      }}
+                      className="text-zinc-600 hover:text-red-400 transition-colors p-1"
+                      title="Delete entry"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}

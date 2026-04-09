@@ -3,6 +3,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDocs,
   getDoc,
   query,
@@ -149,6 +150,10 @@ export async function getPayments(): Promise<Payment[]> {
   const q = query(collection(db, "payments"), orderBy("date", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Payment));
+}
+
+export async function deletePayment(id: string): Promise<void> {
+  await deleteDoc(doc(db, "payments", id));
 }
 
 // ── Pricing ───────────────────────────────────────────────────────────────────

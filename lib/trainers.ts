@@ -150,3 +150,7 @@ export async function getPTPayments(): Promise<PTPayment[]> {
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PTPayment));
 }
+
+export async function deletePTPayment(id: string): Promise<void> {
+  await deleteDoc(doc(db, "ptPayments", id));
+}
