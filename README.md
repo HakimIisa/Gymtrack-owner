@@ -238,7 +238,7 @@ Update the owner login email or password. Both operations require re-entering th
 
 ## 10. Mobile & Desktop Apps
 
-GymTrack is available across three platforms — the same live Firebase data is accessible from all of them.
+GymTrack is available across three platforms — **Web** (Vercel), **Android** (APK), and **Windows desktop** (Electron installer) — all sharing the same live Firebase data.
 
 ### Android
 
