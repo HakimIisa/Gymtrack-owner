@@ -1,8 +1,8 @@
 # GymTrack — Hybrid Fitness Management System
 
-A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym owner a complete operational dashboard — member management, trainer assignments, financial tracking, minor member compliance, and automated SMS notifications — all from one place.
+A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym owner a complete operational dashboard — member management, trainer assignments, financial tracking, minor member compliance, and automated SMS notifications — all from one place. Available as a **web app**, **Android APK**, and **Windows desktop app**.
 
-**Stack:** Next.js · Firebase Firestore · Firebase Cloud Functions · Tailwind CSS · TypeScript · Vercel
+**Stack:** Next.js · Firebase Firestore · Firebase Cloud Functions · Tailwind CSS · TypeScript · Vercel · Capacitor (Android) · Electron (Windows)
 
 ---
 
@@ -17,8 +17,9 @@ A full-stack gym management web app built for **Hybrid Fitness**. Gives the gym 
 7. [Finances](#7-finances)
 8. [Automated SMS Notifications](#8-automated-sms-notifications)
 9. [Settings](#9-settings)
-10. [Tech Stack](#10-tech-stack)
-11. [Project Structure](#11-project-structure)
+10. [Mobile & Desktop Apps](#10-mobile--desktop-apps)
+11. [Tech Stack](#11-tech-stack)
+12. [Project Structure](#12-project-structure)
 
 ---
 
@@ -235,7 +236,26 @@ Update the owner login email or password. Both operations require re-entering th
 
 ---
 
-## 10. Tech Stack
+## 10. Mobile & Desktop Apps
+
+GymTrack is available across three platforms — the same live Firebase data is accessible from all of them.
+
+### Android
+
+<p float="left">
+  <img src="screenshots-for-github/MobileDashboard.jpeg" width="45%" alt="Mobile Dashboard" />
+  <img src="screenshots-for-github/MobileDashboard2.jpeg" width="45%" alt="Mobile Sidebar" />
+</p>
+
+The Android app is packaged with **Capacitor**, wrapping the hosted Vercel app in a native WebView. It ships as a standard APK and runs on any Android device.
+
+### Windows Desktop
+
+A standalone Windows installer built with **Electron** and **electron-builder**. Installs with a single double-click — no browser or additional setup required. Ships as `Hybrid Fitness Setup 1.0.0.exe`.
+
+---
+
+## 11. Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -245,10 +265,12 @@ Update the owner login email or password. Both operations require re-entering th
 | Scheduled jobs | Firebase Cloud Functions v2 (`onSchedule`) |
 | SMS | MSG91 — India transactional SMS |
 | Hosting | Vercel |
+| Android | Capacitor (WebView wrapper, APK) |
+| Windows | Electron + electron-builder (NSIS installer) |
 
 ---
 
-## 11. Project Structure
+## 12. Project Structure
 
 ```
 gymtrack/
@@ -284,7 +306,7 @@ gymtrack/
 
 ---
 
-## 11. License
+## 13. License
 
 This project is proprietary software developed exclusively for **Hybrid Fitness**.
 
@@ -292,7 +314,7 @@ All rights reserved. No part of this codebase — including source code, design,
 
 ---
 
-## 12. Author
+## 14. Author
 
 **Hakim Mohammad Iisa**
 Full-Stack Developer
